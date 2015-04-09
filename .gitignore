@@ -1,0 +1,6 @@
+/bin/
+/config.properties
+/twitter4j.properties
+.DS_Store
+*.class
+/report/*

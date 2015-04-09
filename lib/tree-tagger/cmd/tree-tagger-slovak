@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN=/Users/msgeden/Desktop/Libraries/tree-tagger-MacOSX-3.2-intel/bin
+CMD=/Users/msgeden/Desktop/Libraries/tree-tagger-MacOSX-3.2-intel/cmd
+LIB=/Users/msgeden/Desktop/Libraries/tree-tagger-MacOSX-3.2-intel/lib
+
+OPTIONS="-token -lemma -sgml"
+
+TAGGER=${BIN}/tree-tagger
+TOKENIZER=${CMD}/utf8-tokenize.perl
+PARFILE=${LIB}/slovak-utf8.par
+
+$TOKENIZER $* |
+$TAGGER $OPTIONS $PARFILE
