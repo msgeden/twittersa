@@ -18,12 +18,18 @@ public class NgramExtractor {
 
 	public static HashMap<String, Integer[]> generateNgramsOfTweets(
 			ArrayList<Tweet> tweets, boolean smoothing) {
-
 		// This structure will keep the ngrams with class frequencies:
 		// HashMap<Ngram, Integer[Class]>
 		HashMap<String, Integer[]> ngrams = new HashMap<String, Integer[]>();
 		try {
 			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
+			String statsPath = FileHandler
+					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+					+ "statistics_of_"
+					+ ngramSize + "-grams.tsv";
+			File statsFile = new File(statsPath);
+			FileUtils.deleteDirectory(statsFile);
+			
 			// Number of b and tweets traversed
 			int tokenIterator = 0;
 			int tweetIterator = 0;
@@ -76,9 +82,14 @@ public class NgramExtractor {
 			ngrams.put(Constants.COUNT_OF_NGRAMS_PER_CLASS, ngramCountOfClasses);
 
 			// Print the total number of unique ngrams, tweets processed
+			FileUtils.write(statsFile, "number of ngrams: " + ngrams.size()
+					+ Constants.SEPERATOR_CHAR +"number of tweets: " 
+					+ tweetIterator
+					+ Constants.SEPERATOR_CHAR + "number of tokens: " + tokenIterator, true);
 			System.out.println("number of ngrams: " + ngrams.size()
-					+ " number of tweets: " + tweetIterator
-					+ " number of tokens: " + tokenIterator);
+					+ Constants.SEPERATOR_CHAR +"number of tweets: " 
+					+ tweetIterator
+					+ Constants.SEPERATOR_CHAR + "number of tokens: " + tokenIterator);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -90,9 +101,7 @@ public class NgramExtractor {
 		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 		String ngramsCondProbPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "condprob_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "conditional_probabilities_of_"+ngramSize+"-grams.tsv";
 		File ngramsCondProbFile = new File(ngramsCondProbPath);
 
 		// Try to delete if it exists without exception
@@ -240,9 +249,7 @@ public class NgramExtractor {
 
 		String rankedNgramsPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "list_ig_ranked_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_list_by_information_gain.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
 		// Try to delete if it exists without exception
@@ -373,9 +380,7 @@ public class NgramExtractor {
 		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 		String ngramsByIGPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "threshold_ig_ranked_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_by_information_gain_threshold.tsv";		
 		File ngramsByIGFile = new File(ngramsByIGPath);
 
 		// Try to delete if it exists without exception
@@ -489,9 +494,7 @@ public class NgramExtractor {
 		
 		String rankedNgramsPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "list_entropy_ranked_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_list_by_entropy.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
 		// Try to delete if it exists without exception
@@ -596,9 +599,7 @@ public class NgramExtractor {
 		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 		String ngramsByEntropyPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "threshold_entropy_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_by_entropy_threshold.tsv";
 		File ngramsByEntropyFile = new File(ngramsByEntropyPath);
 
 		// Try to delete if it exists without exception
@@ -662,9 +663,7 @@ public class NgramExtractor {
 
 		String rankedNgramsPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "list_salience_ranked_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_list_by_salience.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
 		// Try to delete if it exists without exception
@@ -771,9 +770,7 @@ public class NgramExtractor {
 		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 		String ngramsBySaliencePath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "threshold_salience_ngrams"
-				+ Constants.UNDERSCORE
-				+ ngramSize + ".tsv";
+				+ "distinctive_"+ngramSize+"-grams_by_salience_threshold.tsv";
 		File ngramsBySalienceFile = new File(ngramsBySaliencePath);
 
 		// Try to delete if it exists without exception

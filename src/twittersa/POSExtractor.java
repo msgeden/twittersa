@@ -182,7 +182,7 @@ public class POSExtractor {
 			writePOSProbsToFile(rankedPosTags,true);
 			return uniquePOS;
 	}
-	public static HashMap<String, Double> calculatePOSProbsForObjectivity(
+	public static HashMap<String, Double> calculatePOSProbsForSubjectivity(
 			ArrayList<Tweet> tweets) {
 		// TreeTagger Library folder
 		System.setProperty("treetagger.home",
@@ -341,7 +341,7 @@ public class POSExtractor {
 	public static void writeCondProbsOfPosTagsToFile(HashMap<String,Double[]> posTagsWithCondProbs) {
 		String posTagsCondProbPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ "condprob_postags.tsv";
+				+ "conditional_probabilities_of_postags.tsv";;
 		File posTagsCondProbFile = new File(posTagsCondProbPath);
 		// Try to delete if it exists without exception
 		FileUtils.deleteQuietly(posTagsCondProbFile);
@@ -384,7 +384,7 @@ public class POSExtractor {
 	
 	public static void writePOSProbsToFile(PosTagProb[] rankedPosTags, boolean isPolarity) {
 		
-		String fileName=isPolarity?"list_ranked_pos_polarity.tsv":"list_ranked_pos_subjectivity.tsv";
+		String fileName=isPolarity?"distinctive_postags_list_for_polarity.tsv":"distinctive_postags_list_for_subjectivity.tsv";
 		String rankedPOSPath = FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ fileName;

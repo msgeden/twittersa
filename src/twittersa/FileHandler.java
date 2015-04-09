@@ -124,12 +124,16 @@ public class FileHandler {
 				Tweet.ClassLabel classInfo = Tweet.ClassLabel
 						.values()[Integer.parseInt(values[0]) / 2];
 				long id = Long.parseLong(values[1]);
-				Date date = null;
+				Date date = new Date();
+				try {
 				if (values[2].length() < 20)
 					date = format.parse(values[2]);
 				else
 					date = new Date(values[2]);
-
+				}
+				catch(Exception e){
+					System.out.println(values[1]);
+				}
 				String query = values[3];
 				String authorNickName = values[4];
 				String originalContent = values[5];
@@ -139,6 +143,7 @@ public class FileHandler {
 
 			}
 		} catch (Exception e) {
+			
 			e.printStackTrace();
 		}
 		return tweets;

@@ -201,11 +201,10 @@ public class MultinomialNaiveBayesClassifier {
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
-					+ "multinomial_nb_results"
+					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
-					+ "ngram"
-					+ Constants.UNDERSCORE
-					+ Integer.toString(ngramSize) + ".tsv";
+					+ Integer.toString(ngramSize)+"-grams" 
+					+ ".tsv";
 
 			// This structure will keep class probabilities for each tweet:
 			// HashMap<TweetId, Probability[Class]>
@@ -283,11 +282,9 @@ public class MultinomialNaiveBayesClassifier {
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
-					+ "multinomial_nb_results"
+					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
-					+ "ngram"
-					+ Constants.UNDERSCORE
-					+ Integer.toString(ngramSize) + ".tsv";
+					+ "both_ngrams"  + ".tsv";
 
 			// This structure will keep class probabilities for each tweet:
 			// HashMap<TweetId, Probability[Class]>
@@ -360,7 +357,7 @@ public class MultinomialNaiveBayesClassifier {
 		try {
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
-					+ File.separator + "multinomial_nb_results_by_postag.tsv";
+					+ File.separator + "mnb_results_with_postags.tsv";
 
 			// This structure will keep class probabilities for each tweet:
 			// HashMap<TweetId, Probability[Class]>
@@ -387,19 +384,19 @@ public class MultinomialNaiveBayesClassifier {
 					correctClassification++;
 				else {
 					incorrectClassification++;
-					FileUtils.write(resultsFile,"\nId: " + tweet.getId()
-							+ Constants.SEPERATOR_CHAR + "Actual: "
-							+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
-							+ "Predicted: " + predictedClassInfo.name()
-							+ Constants.SEPERATOR_CHAR + "Text: "
-							+ tweet.getOriginalContent(),true);
-					System.out.print("\nId: " + tweet.getId()
-							+ Constants.SEPERATOR_CHAR + "Actual: "
-							+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
-							+ "Predicted: " + predictedClassInfo.name()
-							+ Constants.SEPERATOR_CHAR + "Text: "
-							+ tweet.getOriginalContent());
 				}
+				FileUtils.write(resultsFile,"\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent(),true);
+				System.out.print("\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent());
 			}
 			totalInstances = correctClassification + incorrectClassification;
 			double successRatio = (double) correctClassification
@@ -438,7 +435,7 @@ public class MultinomialNaiveBayesClassifier {
 					.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
-					+ File.separator + "multinomial_nb_results_"+ngramSize+".tsv";
+					+ File.separator + "mnb_results_with_"+ngramSize+"-grams_and_postags.tsv";
 
 			// This structure will keep class probabilities for each tweet:
 			// HashMap<TweetId, Probability[Class]>
@@ -520,7 +517,7 @@ public class MultinomialNaiveBayesClassifier {
 					.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
-					+ File.separator + "multinomial_nb_results_separate_"+ngramSize+".tsv";
+					+ File.separator + "mnb_results_with_"+ngramSize+"-grams_and_postags_seperately.tsv";
 
 			// This structure will keep class probabilities for each tweet:
 			// HashMap<TweetId, Probability[Class]>
@@ -558,19 +555,19 @@ public class MultinomialNaiveBayesClassifier {
 					correctClassification++;
 				else {
 					incorrectClassification++;
-					FileUtils.write(resultsFile,"\nId: " + tweet.getId()
-							+ Constants.SEPERATOR_CHAR + "Actual: "
-							+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
-							+ "Predicted: " + predictedClassInfo.name()
-							+ Constants.SEPERATOR_CHAR + "Text: "
-							+ tweet.getOriginalContent(),true);
-					System.out.print("\nId: " + tweet.getId()
-							+ Constants.SEPERATOR_CHAR + "Actual: "
-							+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
-							+ "Predicted: " + predictedClassInfo.name()
-							+ Constants.SEPERATOR_CHAR + "Text: "
-							+ tweet.getOriginalContent());
 				}
+				FileUtils.write(resultsFile,"\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent(),true);
+				System.out.print("\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent());
 
 			}
 			totalInstances = correctClassification + incorrectClassification;
@@ -623,7 +620,7 @@ public class MultinomialNaiveBayesClassifier {
 						.ordinal()])
 						/ (ngramClassProbs[ClassLabel.Negative.ordinal()] + ngramClassProbs[ClassLabel.Positive
 								.ordinal()]));
-		if (posTagProbMean > alpha || p < beta)
+		if (posTagProbMean > alpha && p < beta)
 			return Tweet.ClassLabel.Neutral;
 		double maxValue = Double.NEGATIVE_INFINITY;
 		int maxIndex = 0;
