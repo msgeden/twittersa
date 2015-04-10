@@ -17,29 +17,31 @@ public class SentimentAnalyser {
 		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
 		int ngramSize = Integer.parseInt(FileHandler
 				.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
-		String distinctiveNgramsFile = commonDataPath+"threshold_entropy_ngrams_" + ngramSize + ".tsv";
-		String distinctiveNgramsListFile = commonDataPath+"list_entropy_ranked_ngrams_" + ngramSize + ".tsv";
-		String posProbsFile = commonDataPath+"list_ranked_pos_polarity.tsv";
-		String posCondProbsFile = commonDataPath+"condprob_postags.tsv";
-		String ngramCondProbsFile = commonDataPath+"condprob_ngrams_"+ ngramSize + ".tsv";
+		String distinctiveNgramsListFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_list_by_entropy.tsv";
+		String distinctiveNgramsFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_by_entropy_threshold.tsv";
+		String posProbsPolarityFile = commonDataPath+"distinctive_postags_list_for_polarity.tsv";
+		String posProbsSubjectivityFile = commonDataPath+"distinctive_postags_list_for_subjectivity.tsv";
+		
+		String posCondProbsFile = commonDataPath+"conditional_probabilities_of_postags.tsv";
+		String ngramCondProbsFile = commonDataPath+"conditional_probabilities_of_" + ngramSize +"-grams.tsv";
 
-		String bigramCondProbsFile = commonDataPath+"condprob_ngrams_"+ 2 + ".tsv";
-		String unigramCondProbsFile = commonDataPath+"condprob_ngrams_"+ 1 + ".tsv";
-		String distinctiveUnigramsFile = commonDataPath+"threshold_entropy_ngrams_1.tsv";
-		String distinctiveBigramsFile = commonDataPath+"threshold_entropy_ngrams_2.tsv";
+		String bigramCondProbsFile = commonDataPath+"conditional_probabilities_of_2-grams.tsv";
+		String unigramCondProbsFile = commonDataPath+"conditional_probabilities_of_1-grams.tsv";
+		String distinctiveUnigramsFile = commonDataPath+"distinctive_1-grams_by_entropy_threshold.tsv";
+		String distinctiveBigramsFile = commonDataPath+"distinctive_2-grams_by_entropy_threshold.tsv";
 		
 		// Split file into test and training with ratio 1:4
 		//args = new String[] {"-s", commonDataPath, "stanford.tsv"};
 
 		// Constructs distinctive ngrams and their conditional probabilities
-		args = new String[] {"-rn", commonDataPath+"all.tsv"};
+		//args = new String[] {"-rn", commonDataPath+"stanford.tsv"};
 
 		// Constructs distinctive postags and their conditional probabilities
-		args = new String[] { "-rp", commonDataPath+"all.tsv" };
+		//args = new String[] { "-rp", commonDataPath+"stanford.tsv" };
 
 		// Constructs weka arff files of training and test data with for given
 		// distinctive ngrams list
-		//args = new String[] { "-w", commonDataPath+"stanford_training_0_2.tsv", distinctiveNgramsListFile,"training"};
+		//args = new String[] { "-w", commonDataPath+"stanford_polarity_0_1.tsv", distinctiveNgramsListFile,"training"};
 		//args = new String[] { "-w", commonDataPath + "stanford_validation_polarity.tsv", distinctiveNgramsListFile,"test"};
 
 		// Run weka classifier algorithms for the generated arff files
@@ -155,8 +157,11 @@ public class SentimentAnalyser {
 					ArrayList<Tweet> testTweets = PreProcessor
 							.processTweets(args[1]);
 
-					HashMap<String, Double> posProbs = POSExtractor
-							.readPOSProbsFromFile(posProbsFile);
+					HashMap<String, Double> posPolarityProbs = POSExtractor
+							.readPOSProbsFromFile(posProbsPolarityFile);
+
+					HashMap<String, Double> posSubjectivityProbs = POSExtractor
+							.readPOSProbsFromFile(posProbsSubjectivityFile);
 
 					HashMap<String, Double[]> posCondProbs = POSExtractor
 							.readCondProbsOfPosTagsFromFile(posCondProbsFile);
@@ -182,29 +187,31 @@ public class SentimentAnalyser {
 					HashMap<Long, Double[]> tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets, bigramsCondProbs, null, 2);
 
-					//MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, 0.5);
+					//lambda represents the weights between postags features and ngrams features
+					MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs, tweetsClassPosProbs);
+					MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, 0.5);
 
 					//alpha represents PosTag probs threshold and beta represents threshold for the ngram cond. probability difference
-					//MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posProbs, 0.5, 0.1);
+				    //MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posSubjectivityProbs, 0.2, 0.1);
+
+//					//lambda represents the weights between postags features and ngrams features
+//					double start=0.0;
+//					double optimumLambda=start;
+//					double increment = 0.05;
+//					double limit = 1;
+//					ArrayList<Double[]> results1 = new ArrayList<Double[]>();
+//					while(optimumLambda <= limit)
+//					{
+//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
+//						optimumLambda+=increment;
+//					}//optimumlambda=0.5 for 3-classes.tsv
+//					System.out.println("");
+//					for (Double[] result:results1)
+//					{
+//						System.out.println("lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %");
+//					}
 					
-					double start=0.0;
-					double optimumLambda=start;
-					double increment = 0.05;
-					double limit = 1;
-					ArrayList<Double[]> results1 = new ArrayList<Double[]>();
-					while(optimumLambda <= limit)
-					{
-						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
-						optimumLambda+=increment;
-					}
-					System.out.println("");
-					double lambda = start;
-					for (Double[] result:results1)
-					{
-						System.out.println("lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %");
-					}
-					
-					//alpha represents PosTag probs threshold and beta represents threshold for the ngram cond. probability difference
+//					//alpha represents PosTag probs threshold and beta represents threshold for the ngram cond. probability difference
 //					double alphaStart=0.2;
 //					double betaStart=0.0;
 //					double optimumAlpha=alphaStart;
@@ -216,15 +223,13 @@ public class SentimentAnalyser {
 //					ArrayList<Double[]> results2 = new ArrayList<Double[]>();
 //					while((optimumAlpha <= limitAlpha)||(optimumBeta <= limitBeta))
 //					{
-//						results2.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posProbs, optimumAlpha, optimumBeta),optimumAlpha,optimumBeta});
+//						results2.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posSubjectivityProbs, optimumAlpha, optimumBeta),optimumAlpha,optimumBeta});
 //						if(optimumAlpha <= limitAlpha)
 //							optimumAlpha+=incrementAlpha;	
 //						if(optimumBeta <= limitBeta)
 //							optimumBeta+=incrementBeta;
 //					}
 //					System.out.println("");
-//					double alpha=alphaStart;
-//					double beta=betaStart;
 //					for (Double[] result:results2)
 //					{
 //						System.out.println("alpha:"+ String.format("%.5f",result[1]) + ", beta:" + String.format("%.5f",result[2]) + ", Success Ratio:"+result[0]*100 + " %");

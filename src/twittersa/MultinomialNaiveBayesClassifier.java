@@ -277,8 +277,6 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs) {
 
 		try {
-			int ngramSize = Integer.parseInt(FileHandler
-					.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
 			String resultsPath = FileHandler
 					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
@@ -305,6 +303,83 @@ public class MultinomialNaiveBayesClassifier {
 
 				actualClassInfo = tweet.getClassInfo();
 				predictedClassInfo = predictTweetClassByBigramsAndUnigrams(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()));
+				// Count correct and incorrect classifications
+				if (predictedClassInfo == actualClassInfo)
+					correctClassification++;
+				else {
+					incorrectClassification++;
+				}
+				FileUtils.write(resultsFile,"\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent(),true);
+				System.out.print("\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent());
+			}
+			totalInstances = correctClassification + incorrectClassification;
+			double successRatio = (double) correctClassification
+					/ totalInstances;
+			FileUtils.write(resultsFile,"\nCorrectly Classified Instances  "
+					+ Constants.SEPERATOR_CHAR + correctClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", (successRatio * 100)) + " %",true);
+			FileUtils.write(resultsFile,"\nIncorrectly Classified Instances"
+					+ Constants.SEPERATOR_CHAR + incorrectClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", ((1 - successRatio) * 100)) + " %",true);
+			FileUtils.write(resultsFile,"\nTotal Number of Instances       "
+					+ Constants.SEPERATOR_CHAR + totalInstances,true);
+			System.out.print("\nCorrectly Classified Instances  "
+					+ Constants.SEPERATOR_CHAR + correctClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", (successRatio * 100)) + " %");
+			System.out.print("\nIncorrectly Classified Instances"
+					+ Constants.SEPERATOR_CHAR + incorrectClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", ((1 - successRatio) * 100)) + " %");
+			System.out.print("\nTotal Number of Instances       "
+					+ Constants.SEPERATOR_CHAR + totalInstances);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void classifyTweets(ArrayList<Tweet> testTweets,
+			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs, HashMap<Long, Double[]> posTagClassProbs) {
+
+		try {
+			String resultsPath = FileHandler
+					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+					+ File.separator
+					+ "mnb_results_with"
+					+ Constants.UNDERSCORE
+					+ "all"  + ".tsv";
+
+			// This structure will keep class probabilities for each tweet:
+			// HashMap<TweetId, Probability[Class]>
+
+			File resultsFile = new File(resultsPath);
+			FileUtils.deleteQuietly(resultsFile);
+
+			Tweet.ClassLabel actualClassInfo = null;
+			Tweet.ClassLabel predictedClassInfo;
+			int correctClassification = 0;
+			int incorrectClassification = 0;
+			int totalInstances = 0;
+			// Traverse tweets to be calculate class probabilities for each
+			// tweet
+			FileUtils.write(resultsFile, "\nResults\n======\n\nIncorrect Classifications:\n",true);
+			System.out.print("\nResults\n======\n\nIncorrect Classifications:\n");
+			for (Tweet tweet : testTweets) {
+
+				actualClassInfo = tweet.getClassInfo();
+				predictedClassInfo = predictTweetClassByAll(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()),posTagClassProbs.get(tweet.getId()));
 				// Count correct and incorrect classifications
 				if (predictedClassInfo == actualClassInfo)
 					correctClassification++;
@@ -455,7 +530,8 @@ public class MultinomialNaiveBayesClassifier {
 			for (Tweet tweet : testTweets) {
 
 				actualClassInfo = tweet.getClassInfo();
-				predictedClassInfo = predictTweetClass(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda);
+				//predictedClassInfo = predictTweetClassByNgramsAndPostags(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()));
+				predictedClassInfo = predictTweetClassByWeightedNgramsAndPostags(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda);
 				//predictedClassInfo = predictTweetClassConditional(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda,actualClassInfo);
 				// Count correct and incorrect classifications
 				if (predictedClassInfo == actualClassInfo)
@@ -547,7 +623,7 @@ public class MultinomialNaiveBayesClassifier {
 				posTagProbsMean = (Math.abs(posTagProbsMean) / (double) posTagsOfTweet
 						.size());
 
-				predictedClassInfo = predictTweetClass(
+				predictedClassInfo = predictTweetClassByNgramsAndPostagMeans(
 						ngramClassProbs.get(tweet.getId()), posTagProbsMean,
 						alpha, beta);
 				// Count correct and incorrect classifications
@@ -613,7 +689,7 @@ public class MultinomialNaiveBayesClassifier {
 		return Tweet.ClassLabel.values()[maxIndex];
 	}
 
-	private static Tweet.ClassLabel predictTweetClass(Double[] ngramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByNgramsAndPostagMeans(Double[] ngramClassProbs,
 			double posTagProbMean, double alpha, double beta) {
 		double p = Math
 				.abs((ngramClassProbs[ClassLabel.Negative.ordinal()] - ngramClassProbs[ClassLabel.Positive
@@ -633,41 +709,6 @@ public class MultinomialNaiveBayesClassifier {
 		return Tweet.ClassLabel.values()[maxIndex];
 	}
 
-	private static Tweet.ClassLabel predictTweetClassConditional(Double[] ngramClassProbs,
-			Double[] posTagClassProbs, double threshold, ClassLabel actualClass) {
-		
-		double p = (ngramClassProbs[ClassLabel.Negative.ordinal()] - ngramClassProbs[ClassLabel.Positive
-						.ordinal()])
-						/ (ngramClassProbs[ClassLabel.Negative.ordinal()] + ngramClassProbs[ClassLabel.Positive
-								.ordinal()]);
-		System.out.print(String.format("%.05f", Math.abs(p*100)) + " %\t");
-		double[] weighted = new double[ngramClassProbs.length];
-		if (Math.abs(p)<threshold)
-		{
-			for (int i = 0; i < weighted.length; i++) {
-				weighted[i] = posTagClassProbs[i];
-			}
-		}
-		else
-		{
-			for (int i = 0; i < weighted.length; i++) {
-				weighted[i] = ngramClassProbs[i];
-			}
-		}
-		double maxValue = Double.NEGATIVE_INFINITY;
-		int maxIndex = 0;
-		for (int i = 0; i < weighted.length; i++) {
-			if (weighted[i] > maxValue) {
-				maxValue = weighted[i];
-				maxIndex = i;
-			}
-		}
-		//System.out.println(p);
-		
-		return Tweet.ClassLabel.values()[maxIndex];
-	}
-	
-	
 	private static Tweet.ClassLabel predictTweetClassByBigramsAndUnigrams(Double[] bigramClassProbs,
 			Double[] unigramClassProbs) {
 		
@@ -707,7 +748,186 @@ public class MultinomialNaiveBayesClassifier {
 			}
 			return Tweet.ClassLabel.values()[maxIndex];
 		}
-	private static Tweet.ClassLabel predictTweetClass(Double[] ngramClassProbs,
+	
+	private static Tweet.ClassLabel predictTweetClassByAll(Double[] bigramClassProbs, Double[] unigramClassProbs,
+			Double[] posTagClassProbs) {
+		
+			double[] bigramClassDiffs = new double[bigramClassProbs.length]; 
+			//|p1-p2|/|p1+p2|
+			bigramClassDiffs[0] = Math.abs(bigramClassProbs[ClassLabel.Negative.ordinal()]-bigramClassProbs[ClassLabel.Neutral.ordinal()]);
+			bigramClassDiffs[1] = Math.abs(bigramClassProbs[ClassLabel.Neutral.ordinal()]-bigramClassProbs[ClassLabel.Positive.ordinal()]);
+			bigramClassDiffs[2] = Math.abs(bigramClassProbs[ClassLabel.Negative.ordinal()]-bigramClassProbs[ClassLabel.Positive.ordinal()]);
+			
+			double bigramDiffsSum =   bigramClassDiffs[0] + bigramClassDiffs[1] + bigramClassDiffs[2];
+			
+			double bigramEntropy = 0.0;
+			for (int i = 0; i < bigramClassDiffs.length; i++) {
+
+				double p = bigramClassDiffs[i] / bigramDiffsSum;
+				if (p == 0.0 || p == 1.0)
+					continue;
+				bigramEntropy += (p * (Math.log(p) / Math.log(2.0)));
+			}
+			bigramEntropy=-1*bigramEntropy;
+			
+			double[] unigramClassDiffs = new double[unigramClassProbs.length]; 
+			//|p1-p2|/|p1+p2|
+			unigramClassDiffs[0] = Math.abs(unigramClassProbs[ClassLabel.Negative.ordinal()]-unigramClassProbs[ClassLabel.Neutral.ordinal()]);
+			unigramClassDiffs[1] = Math.abs(unigramClassProbs[ClassLabel.Neutral.ordinal()]-unigramClassProbs[ClassLabel.Positive.ordinal()]);
+			unigramClassDiffs[2] = Math.abs(unigramClassProbs[ClassLabel.Negative.ordinal()]-unigramClassProbs[ClassLabel.Positive.ordinal()]);
+			
+			double unigramDiffsSum =   unigramClassDiffs[0] + unigramClassDiffs[1] + unigramClassDiffs[2];
+			
+			double unigramEntropy = 0.0;
+			for (int i = 0; i < unigramClassDiffs.length; i++) {
+
+				double p = unigramClassDiffs[i] / unigramDiffsSum;
+				if (p == 0.0 || p == 1.0)
+					continue;
+				unigramEntropy += (p * (Math.log(p) / Math.log(2.0)));
+			}
+			unigramEntropy=-1*unigramEntropy;
+			
+			double[] postagClassDiffs = new double[bigramClassProbs.length]; 
+			
+			postagClassDiffs[0] = Math.abs(posTagClassProbs[ClassLabel.Negative.ordinal()]-posTagClassProbs[ClassLabel.Neutral.ordinal()]);
+			postagClassDiffs[1] = Math.abs(posTagClassProbs[ClassLabel.Neutral.ordinal()]-posTagClassProbs[ClassLabel.Positive.ordinal()]);
+			postagClassDiffs[2] = Math.abs(posTagClassProbs[ClassLabel.Negative.ordinal()]-posTagClassProbs[ClassLabel.Positive.ordinal()]);
+			
+			double postagDiffsSum =   postagClassDiffs[0] + postagClassDiffs[1] + postagClassDiffs[2];
+			double postagEntropy = 0.0;
+			for (int i = 0; i < postagClassDiffs.length; i++) {
+
+				double p = postagClassDiffs[i] / postagDiffsSum;
+				if (p == 0.0 || p == 1.0)
+					continue;
+				postagEntropy += (p * (Math.log(p) / Math.log(2.0)));
+			}
+			postagEntropy=-1*postagEntropy;
+			
+			double maxValueBigram = Double.NEGATIVE_INFINITY;
+			int maxIndexBigram = 0;
+			for (int i = 0; i < bigramClassProbs.length; i++) {
+				if (bigramClassProbs[i] > maxValueBigram) {
+					maxValueBigram = bigramClassProbs[i];
+					maxIndexBigram = i;
+				}
+			}
+			ClassLabel predictedByBigram =  Tweet.ClassLabel.values()[maxIndexBigram];
+			
+			double maxValueUnigram = Double.NEGATIVE_INFINITY;
+			int maxIndexUnigram = 0;
+			for (int i = 0; i < unigramClassProbs.length; i++) {
+				if (unigramClassProbs[i] > maxValueUnigram) {
+					maxValueUnigram = unigramClassProbs[i];
+					maxIndexUnigram = i;
+				}
+			}
+			ClassLabel predictedByUnigram =  Tweet.ClassLabel.values()[maxIndexUnigram];
+			
+			double maxValuePostag = Double.NEGATIVE_INFINITY;
+			int maxIndexPostag = 0;
+			for (int i = 0; i < posTagClassProbs.length; i++) {
+				if (posTagClassProbs[i] > maxValuePostag) {
+					maxValuePostag = posTagClassProbs[i];
+					maxIndexPostag = i;
+				}
+			}
+			
+			ClassLabel predictedByPostag =  Tweet.ClassLabel.values()[maxIndexPostag];
+			if (predictedByBigram != predictedByUnigram)
+			{
+				if (Math.max(bigramEntropy, unigramEntropy)<postagEntropy){
+					if (predictedByBigram==predictedByPostag)
+						return predictedByBigram;
+					else if (predictedByUnigram==predictedByPostag)
+						return predictedByUnigram;
+					else
+					{
+						if (bigramEntropy>unigramEntropy)
+							return predictedByBigram;
+						else
+							return predictedByUnigram;
+					}
+						
+				}
+				else{
+					if (bigramEntropy>unigramEntropy)
+						return predictedByBigram;
+					else
+						return predictedByUnigram;
+				}
+			}
+			else
+				return predictedByBigram;
+			
+		}
+	
+	private static Tweet.ClassLabel predictTweetClassByNgramsAndPostagsEntropy(Double[] ngramClassProbs,
+			Double[] posTagClassProbs) {
+			double[] ngramClassDiffs = new double[ngramClassProbs.length]; 
+			//|p1-p2|/|p1+p2|
+			ngramClassDiffs[0] = Math.abs(ngramClassProbs[ClassLabel.Negative.ordinal()]-ngramClassProbs[ClassLabel.Neutral.ordinal()]);
+			ngramClassDiffs[1] = Math.abs(ngramClassProbs[ClassLabel.Neutral.ordinal()]-ngramClassProbs[ClassLabel.Positive.ordinal()]);
+			ngramClassDiffs[2] = Math.abs(ngramClassProbs[ClassLabel.Negative.ordinal()]-ngramClassProbs[ClassLabel.Positive.ordinal()]);
+			
+			double ngramDiffsSum =   ngramClassDiffs[0] + ngramClassDiffs[1] + ngramClassDiffs[2];
+			
+			double ngramEntropy = 0.0;
+			for (int i = 0; i < ngramClassDiffs.length; i++) {
+
+				double p = ngramClassDiffs[i] / ngramDiffsSum;
+				if (p == 0.0 || p == 1.0)
+					continue;
+				ngramEntropy += (p * (Math.log(p) / Math.log(2.0)));
+			}
+			ngramEntropy=-1*ngramEntropy;
+			
+			double[] postagClassDiffs = new double[ngramClassProbs.length]; 
+			
+			postagClassDiffs[0] = Math.abs(posTagClassProbs[ClassLabel.Negative.ordinal()]-posTagClassProbs[ClassLabel.Neutral.ordinal()]);
+			postagClassDiffs[1] = Math.abs(posTagClassProbs[ClassLabel.Neutral.ordinal()]-posTagClassProbs[ClassLabel.Positive.ordinal()]);
+			postagClassDiffs[2] = Math.abs(posTagClassProbs[ClassLabel.Negative.ordinal()]-posTagClassProbs[ClassLabel.Positive.ordinal()]);
+			
+			double postagDiffsSum =   postagClassDiffs[0] + postagClassDiffs[1] + postagClassDiffs[2];
+			double postagEntropy = 0.0;
+			for (int i = 0; i < postagClassDiffs.length; i++) {
+
+				double p = postagClassDiffs[i] / postagDiffsSum;
+				if (p == 0.0 || p == 1.0)
+					continue;
+				postagEntropy += (p * (Math.log(p) / Math.log(2.0)));
+			}
+			postagEntropy=-1*postagEntropy;
+			
+			double maxValueNgram = Double.NEGATIVE_INFINITY;
+			int maxIndexNgram = 0;
+			for (int i = 0; i < ngramClassProbs.length; i++) {
+				if (ngramClassProbs[i] > maxValueNgram) {
+					maxValueNgram = ngramClassProbs[i];
+					maxIndexNgram = i;
+				}
+			}
+			ClassLabel predictedByNgram =  Tweet.ClassLabel.values()[maxIndexNgram];
+			
+			double maxValuePostag = Double.NEGATIVE_INFINITY;
+			int maxIndexPostag = 0;
+			for (int i = 0; i < posTagClassProbs.length; i++) {
+				if (posTagClassProbs[i] > maxValuePostag) {
+					maxValuePostag = posTagClassProbs[i];
+					maxIndexPostag = i;
+				}
+			}
+			ClassLabel predictedByPostag =  Tweet.ClassLabel.values()[maxIndexPostag];
+			if (ngramEntropy<postagEntropy && predictedByNgram != ClassLabel.Neutral && predictedByPostag == ClassLabel.Neutral){
+				return predictedByPostag;
+			}
+			else
+				return predictedByNgram;
+			
+		}
+	
+	private static Tweet.ClassLabel predictTweetClassByWeightedNgramsAndPostags(Double[] ngramClassProbs,
 		Double[] posTagClassProbs, double lambda) {
 		double p = (ngramClassProbs[ClassLabel.Negative.ordinal()] - ngramClassProbs[ClassLabel.Positive
 		                                                     						.ordinal()])
