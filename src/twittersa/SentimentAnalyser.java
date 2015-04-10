@@ -21,7 +21,7 @@ public class SentimentAnalyser {
 		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
 		int ngramSize = Integer.parseInt(FileHandler
 				.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
-		String distinctiveNgramsListFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_list_by_entropy.tsv";
+		String distinctiveNgramsListFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_list_by_information_gain.tsv";
 		String distinctiveNgramsFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_by_entropy_threshold.tsv";
 		String posProbsPolarityFile = commonDataPath+"distinctive_postags_list_for_polarity.tsv";
 		String posProbsSubjectivityFile = commonDataPath+"distinctive_postags_list_for_subjectivity.tsv";
@@ -48,7 +48,7 @@ public class SentimentAnalyser {
 		//args = new String[] { "-w", commonDataPath + "stanford_validation_polarity.tsv", distinctiveNgramsListFile,"test"};
 
 		// Run weka classifier algorithms for the generated arff files
-		//args = new String[] { "-wc", "j48", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
+		args = new String[] { "-wc", "svm", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
 
 		// Run custom multinomial naive bayes classifier for the data
 		//args = new String[] { "-mnbcpos", commonDataPath+"stanford_validation_polarity.tsv"};
