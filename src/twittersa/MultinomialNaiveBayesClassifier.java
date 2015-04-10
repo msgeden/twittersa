@@ -148,7 +148,7 @@ public class MultinomialNaiveBayesClassifier {
 		return tweetClassNgramProbs;
 	}
 
-	public static HashMap<Long, Double[]> calculatePosLogProbsOfTweets(
+	public static HashMap<Long, Double[]> calculatePosTagLogProbsOfTweets(
 			ArrayList<Tweet> testTweets, HashMap<String, Double[]> condProbs) {
 		TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<>();
 		// This structure will keep class probabilities for each tweet:
@@ -273,7 +273,7 @@ public class MultinomialNaiveBayesClassifier {
 		}
 	}
 
-	public static void classifyTweetsByNgrams(ArrayList<Tweet> testTweets,
+	public static void classifyTweetsByBothNgrams(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs) {
 
 		try {
@@ -302,7 +302,7 @@ public class MultinomialNaiveBayesClassifier {
 			for (Tweet tweet : testTweets) {
 
 				actualClassInfo = tweet.getClassInfo();
-				predictedClassInfo = predictTweetClassByBigramsAndUnigrams(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()));
+				predictedClassInfo = predictTweetClassByBothNgrams(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()));
 				// Count correct and incorrect classifications
 				if (predictedClassInfo == actualClassInfo)
 					correctClassification++;
@@ -350,7 +350,7 @@ public class MultinomialNaiveBayesClassifier {
 		}
 	}
 
-	public static void classifyTweets(ArrayList<Tweet> testTweets,
+	public static void classifyTweetsByBothNgramsAndPosTags(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs, HashMap<Long, Double[]> posTagClassProbs) {
 
 		try {
@@ -379,7 +379,7 @@ public class MultinomialNaiveBayesClassifier {
 			for (Tweet tweet : testTweets) {
 
 				actualClassInfo = tweet.getClassInfo();
-				predictedClassInfo = predictTweetClassByAll(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()),posTagClassProbs.get(tweet.getId()));
+				predictedClassInfo = predictTweetClassByBothNgramsAndPosTags(bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()),posTagClassProbs.get(tweet.getId()));
 				// Count correct and incorrect classifications
 				if (predictedClassInfo == actualClassInfo)
 					correctClassification++;
@@ -501,7 +501,7 @@ public class MultinomialNaiveBayesClassifier {
 		}
 	}
 
-	public static double classifyTweets(ArrayList<Tweet> testTweets,
+	public static double classifyTweetsByNgramsAndPosTags(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> ngramClassProbs,
 			HashMap<Long, Double[]> posTagClassProbs, double lambda) {
 		double successRatio = 0.0;
@@ -530,9 +530,7 @@ public class MultinomialNaiveBayesClassifier {
 			for (Tweet tweet : testTweets) {
 
 				actualClassInfo = tweet.getClassInfo();
-				//predictedClassInfo = predictTweetClassByNgramsAndPostags(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()));
-				predictedClassInfo = predictTweetClassByWeightedNgramsAndPostags(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda);
-				//predictedClassInfo = predictTweetClassConditional(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda,actualClassInfo);
+				predictedClassInfo = predictTweetClassByWeightedNgramsAndPosTags(ngramClassProbs.get(tweet.getId()), posTagClassProbs.get(tweet.getId()), lambda);
 				// Count correct and incorrect classifications
 				if (predictedClassInfo == actualClassInfo)
 					correctClassification++;
@@ -580,8 +578,8 @@ public class MultinomialNaiveBayesClassifier {
 		}
 		return successRatio;
 	}
-
-	public static double classifyTweetsSeparately(ArrayList<Tweet> testTweets,
+	
+	public static double classifyTweetsByNgramsAndPosTagMeans(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> ngramClassProbs,
 			HashMap<String, Double> posProbs, double alpha, double beta) {
 		double successRatio = 0.0;
@@ -623,7 +621,7 @@ public class MultinomialNaiveBayesClassifier {
 				posTagProbsMean = (Math.abs(posTagProbsMean) / (double) posTagsOfTweet
 						.size());
 
-				predictedClassInfo = predictTweetClassByNgramsAndPostagMeans(
+				predictedClassInfo = predictTweetClassByNgramsAndPosTagMeans(
 						ngramClassProbs.get(tweet.getId()), posTagProbsMean,
 						alpha, beta);
 				// Count correct and incorrect classifications
@@ -689,7 +687,7 @@ public class MultinomialNaiveBayesClassifier {
 		return Tweet.ClassLabel.values()[maxIndex];
 	}
 
-	private static Tweet.ClassLabel predictTweetClassByNgramsAndPostagMeans(Double[] ngramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByNgramsAndPosTagMeans(Double[] ngramClassProbs,
 			double posTagProbMean, double alpha, double beta) {
 		double p = Math
 				.abs((ngramClassProbs[ClassLabel.Negative.ordinal()] - ngramClassProbs[ClassLabel.Positive
@@ -709,7 +707,7 @@ public class MultinomialNaiveBayesClassifier {
 		return Tweet.ClassLabel.values()[maxIndex];
 	}
 
-	private static Tweet.ClassLabel predictTweetClassByBigramsAndUnigrams(Double[] bigramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByBothNgrams(Double[] bigramClassProbs,
 			Double[] unigramClassProbs) {
 		
 			//|p1-p2|/|p1+p2|
@@ -749,7 +747,7 @@ public class MultinomialNaiveBayesClassifier {
 			return Tweet.ClassLabel.values()[maxIndex];
 		}
 	
-	private static Tweet.ClassLabel predictTweetClassByAll(Double[] bigramClassProbs, Double[] unigramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByBothNgramsAndPosTags(Double[] bigramClassProbs, Double[] unigramClassProbs,
 			Double[] posTagClassProbs) {
 		
 			double[] bigramClassDiffs = new double[bigramClassProbs.length]; 
@@ -863,7 +861,7 @@ public class MultinomialNaiveBayesClassifier {
 			
 		}
 	
-	private static Tweet.ClassLabel predictTweetClassByNgramsAndPostagsEntropy(Double[] ngramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByNgramsAndPosTagsEntropy(Double[] ngramClassProbs,
 			Double[] posTagClassProbs) {
 			double[] ngramClassDiffs = new double[ngramClassProbs.length]; 
 			//|p1-p2|/|p1+p2|
@@ -927,7 +925,7 @@ public class MultinomialNaiveBayesClassifier {
 			
 		}
 	
-	private static Tweet.ClassLabel predictTweetClassByWeightedNgramsAndPostags(Double[] ngramClassProbs,
+	private static Tweet.ClassLabel predictTweetClassByWeightedNgramsAndPosTags(Double[] ngramClassProbs,
 		Double[] posTagClassProbs, double lambda) {
 		double p = (ngramClassProbs[ClassLabel.Negative.ordinal()] - ngramClassProbs[ClassLabel.Positive
 		                                                     						.ordinal()])

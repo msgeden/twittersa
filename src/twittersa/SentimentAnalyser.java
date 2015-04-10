@@ -13,7 +13,8 @@ import java.util.HashMap;
  */
 public class SentimentAnalyser {
 	public static void main(String[] args) {
-		int numberOfInputs = 200;
+		int numberOfInputs =  Integer.parseInt(FileHandler
+				.readConfigValue(Constants.NUMBER_OF_DATA_INPUT_CONFIG));;
 		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
 		int ngramSize = Integer.parseInt(FileHandler
 				.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
@@ -30,27 +31,26 @@ public class SentimentAnalyser {
 		String distinctiveUnigramsFile = commonDataPath+"distinctive_1-grams_by_entropy_threshold.tsv";
 		String distinctiveBigramsFile = commonDataPath+"distinctive_2-grams_by_entropy_threshold.tsv";
 		
-		// Split file into test and training with ratio 1:4
-		//args = new String[] {"-s", commonDataPath, "stanford.tsv"};
+		//args = new String[] {"-s", commonDataPath, "stanford_polarity_0_1.tsv"};
 
 		// Constructs distinctive ngrams and their conditional probabilities
-		//args = new String[] {"-rn", commonDataPath+"stanford.tsv"};
+		//args = new String[] {"-rn", commonDataPath+"stanford_polarity_0_5.tsv"};
 
 		// Constructs distinctive postags and their conditional probabilities
-		//args = new String[] { "-rp", commonDataPath+"stanford.tsv" };
+		//args = new String[] { "-rp", commonDataPath+"stanford_polarity_0_1.tsv" };
 
 		// Constructs weka arff files of training and test data with for given
 		// distinctive ngrams list
-		//args = new String[] { "-w", commonDataPath+"stanford_polarity_0_1.tsv", distinctiveNgramsListFile,"training"};
+		//args = new String[] { "-w", commonDataPath+"stanford_polarity_0_02.tsv", distinctiveNgramsListFile,"training"};
 		//args = new String[] { "-w", commonDataPath + "stanford_validation_polarity.tsv", distinctiveNgramsListFile,"test"};
 
 		// Run weka classifier algorithms for the generated arff files
-		//args = new String[] { "-wc", "j48", commonDataPath+"Train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"Test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
+		//args = new String[] { "-wc", "j48", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
 
 		// Run custom multinomial naive bayes classifier for the data
-		//args = new String[] { "-mnbcpos", commonDataPath+"stanford_validation.tsv"};
-		//args = new String[] { "-mnbcngram", commonDataPath+"stanford_validation.tsv"};
-		//args = new String[] { "-mnbcboth", commonDataPath+"stanford_validation.tsv"};
+		//args = new String[] { "-mnbcpos", commonDataPath+"stanford_validation_polarity.tsv"};
+		//args = new String[] { "-mnbcngram", commonDataPath+"stanford_validation_polarity.tsv"};
+		//args = new String[] { "-mnbcboth", commonDataPath+"stanford_validation_polarity.tsv"};
 		
 		try {
 			if (args.length > 0) {
@@ -66,7 +66,6 @@ public class SentimentAnalyser {
 							.generateNgramsOfTweets(trainTweets, false);
 
 					NgramExtractor.extractIGOfNgrams(ngrams);
-					NgramExtractor.extractIGOfNgramsByThreshold(ngrams);
 					NgramExtractor.extractEntropyOfNgrams(ngrams);
 					NgramExtractor.extractEntropyOfNgramsByThreshold(ngrams);
 					NgramExtractor.extractSalienceOfNgrams(ngrams);
@@ -134,7 +133,7 @@ public class SentimentAnalyser {
 						MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(testTweets, tweetsClassBigramProbs);
 					}
 					//Use unigrams and bigrams together
-					MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs);
+					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgrams(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs);
 				
 				}
 				else if ((args[0].equals("-mnbcpos") || args[0]
@@ -147,7 +146,7 @@ public class SentimentAnalyser {
 							.readCondProbsOfPosTagsFromFile(posCondProbsFile);
 
 					HashMap<Long, Double[]> tweetsClassPosProbs = MultinomialNaiveBayesClassifier
-							.calculatePosLogProbsOfTweets(testTweets, posCondProbs);
+							.calculatePosTagLogProbsOfTweets(testTweets, posCondProbs);
 
 					MultinomialNaiveBayesClassifier.classifyTweetsByPosTags(testTweets, tweetsClassPosProbs);
 				}
@@ -179,7 +178,7 @@ public class SentimentAnalyser {
 							.readDistinctiveNgramsFromFile(distinctiveBigramsFile);
 
 					HashMap<Long, Double[]> tweetsClassPosProbs = MultinomialNaiveBayesClassifier
-							.calculatePosLogProbsOfTweets(testTweets, posCondProbs);
+							.calculatePosTagLogProbsOfTweets(testTweets, posCondProbs);
 					
 					HashMap<Long, Double[]> tweetsClassUnigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets, unigramsCondProbs, null, 1);
@@ -187,22 +186,22 @@ public class SentimentAnalyser {
 					HashMap<Long, Double[]> tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets, bigramsCondProbs, null, 2);
 
+					MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassUnigramProbs, tweetsClassPosProbs, 1);
+					MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, 1);
+					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgrams(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs);
+					
+					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs, tweetsClassPosProbs);
+					
 					//lambda represents the weights between postags features and ngrams features
-					MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs, tweetsClassPosProbs);
-					MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, 0.5);
-
-					//alpha represents PosTag probs threshold and beta represents threshold for the ngram cond. probability difference
-				    //MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posSubjectivityProbs, 0.2, 0.1);
-
-//					//lambda represents the weights between postags features and ngrams features
 //					double start=0.0;
 //					double optimumLambda=start;
 //					double increment = 0.05;
-//					double limit = 1;
+//					double limit = 1+increment;
 //					ArrayList<Double[]> results1 = new ArrayList<Double[]>();
 //					while(optimumLambda <= limit)
 //					{
-//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweets(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
+//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
+//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassUnigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
 //						optimumLambda+=increment;
 //					}//optimumlambda=0.5 for 3-classes.tsv
 //					System.out.println("");
@@ -211,31 +210,8 @@ public class SentimentAnalyser {
 //						System.out.println("lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %");
 //					}
 					
-//					//alpha represents PosTag probs threshold and beta represents threshold for the ngram cond. probability difference
-//					double alphaStart=0.2;
-//					double betaStart=0.0;
-//					double optimumAlpha=alphaStart;
-//					double optimumBeta=betaStart;
-//					double incrementAlpha = 0.1;
-//					double incrementBeta = 0.01;
-//					double limitAlpha = 1;
-//					double limitBeta = 0.1;
-//					ArrayList<Double[]> results2 = new ArrayList<Double[]>();
-//					while((optimumAlpha <= limitAlpha)||(optimumBeta <= limitBeta))
-//					{
-//						results2.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsSeparately(testTweets, tweetsClassBigramProbs, posSubjectivityProbs, optimumAlpha, optimumBeta),optimumAlpha,optimumBeta});
-//						if(optimumAlpha <= limitAlpha)
-//							optimumAlpha+=incrementAlpha;	
-//						if(optimumBeta <= limitBeta)
-//							optimumBeta+=incrementBeta;
-//					}
-//					System.out.println("");
-//					for (Double[] result:results2)
-//					{
-//						System.out.println("alpha:"+ String.format("%.5f",result[1]) + ", beta:" + String.format("%.5f",result[2]) + ", Success Ratio:"+result[0]*100 + " %");
-//					}
-				}
 
+				}
 			}
 
 		} catch (Exception e) {

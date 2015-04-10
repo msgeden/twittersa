@@ -28,7 +28,7 @@ public class NgramExtractor {
 					+ "statistics_of_"
 					+ ngramSize + "-grams.tsv";
 			File statsFile = new File(statsPath);
-			FileUtils.deleteDirectory(statsFile);
+			FileUtils.deleteQuietly(statsFile);
 			
 			// Number of b and tweets traversed
 			int tokenIterator = 0;
@@ -856,7 +856,7 @@ public class NgramExtractor {
 				: Constants.TRAIN_LABEL;
 
 		// Generate data file and prepare it with its headers
-		String wekaDataFilePath = FileHandler
+		String wekaDataFilePath = (FileHandler
 				.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ trainOrTestLabel
 				+ Constants.UNDERSCORE
@@ -864,7 +864,7 @@ public class NgramExtractor {
 				+ Constants.UNDERSCORE
 				+ numberOfDataInput
 				+ Constants.UNDERSCORE
-				+ ngramSize + ".arff";
+				+ ngramSize + ".arff").toLowerCase();
 
 		File wekaDataFile = new File(wekaDataFilePath);
 		FileUtils.deleteQuietly(wekaDataFile);
