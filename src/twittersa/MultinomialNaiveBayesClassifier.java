@@ -516,7 +516,7 @@ public class MultinomialNaiveBayesClassifier {
 			// HashMap<TweetId, Probability[Class]>
 
 			File resultsFile = new File(resultsPath);
-			FileUtils.deleteQuietly(resultsFile);
+			//FileUtils.deleteQuietly(resultsFile);
 
 			Tweet.ClassLabel actualClassInfo = null;
 			Tweet.ClassLabel predictedClassInfo;

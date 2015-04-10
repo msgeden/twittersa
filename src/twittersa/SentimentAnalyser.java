@@ -1,7 +1,10 @@
 package twittersa;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * 
@@ -186,31 +189,34 @@ public class SentimentAnalyser {
 					HashMap<Long, Double[]> tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets, bigramsCondProbs, null, 2);
 
-					MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassUnigramProbs, tweetsClassPosProbs, 1);
-					MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, 1);
-					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgrams(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs);
 					
 					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs, tweetsClassPosProbs);
 					
 					//lambda represents the weights between postags features and ngrams features
-//					double start=0.0;
-//					double optimumLambda=start;
-//					double increment = 0.05;
-//					double limit = 1+increment;
-//					ArrayList<Double[]> results1 = new ArrayList<Double[]>();
-//					while(optimumLambda <= limit)
-//					{
-//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
-//						results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassUnigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
-//						optimumLambda+=increment;
-//					}//optimumlambda=0.5 for 3-classes.tsv
-//					System.out.println("");
-//					for (Double[] result:results1)
-//					{
-//						System.out.println("lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %");
-//					}
-					
-
+					String resultsPath = FileHandler
+							.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+							+ File.separator + "mnb_results_with_"+ngramSize+"-grams_and_postags.tsv";
+					File resultsFile = new File(resultsPath);
+					double start=0.0;
+					double optimumLambda=start;
+					double increment = 0.05;
+					double limit = 1.0;
+					ArrayList<Double[]> results1 = new ArrayList<Double[]>();
+					while(optimumLambda <= limit)
+					{
+						if (ngramSize == 1 )
+							results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassUnigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
+						else
+							results1.add(new Double[]{MultinomialNaiveBayesClassifier.classifyTweetsByNgramsAndPosTags(testTweets, tweetsClassBigramProbs, tweetsClassPosProbs, optimumLambda),optimumLambda});
+						optimumLambda+=increment;
+					}//optimumlambda=0.5 for 3-classes.tsv
+					System.out.println("");
+					FileUtils.write(resultsFile, "\n",true);
+					for (Double[] result:results1)
+					{
+						System.out.println("lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %");
+						FileUtils.write(resultsFile, "lambda:"+ String.format("%.5f",result[1]) + ", Success Ratio:"+result[0]*100 + " %\n",true);
+					}
 				}
 			}
 
