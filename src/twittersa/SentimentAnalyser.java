@@ -21,7 +21,7 @@ public class SentimentAnalyser {
 		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
 		int ngramSize = Integer.parseInt(FileHandler
 				.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
-		String distinctiveNgramsListFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_list_by_information_gain.tsv";
+		String distinctiveNgramsListFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_list_by_salience.tsv";
 		String distinctiveNgramsFile = commonDataPath+ "distinctive_"+ngramSize+"-grams_by_entropy_threshold.tsv";
 		String posProbsPolarityFile = commonDataPath+"distinctive_postags_list_for_polarity.tsv";
 		String posProbsSubjectivityFile = commonDataPath+"distinctive_postags_list_for_subjectivity.tsv";
@@ -29,6 +29,7 @@ public class SentimentAnalyser {
 		String posCondProbsFile = commonDataPath+"conditional_probabilities_of_postags.tsv";
 		String ngramCondProbsFile = commonDataPath+"conditional_probabilities_of_" + ngramSize +"-grams.tsv";
 
+		String trigramCondProbsFile = commonDataPath+"conditional_probabilities_of_3-grams.tsv";
 		String bigramCondProbsFile = commonDataPath+"conditional_probabilities_of_2-grams.tsv";
 		String unigramCondProbsFile = commonDataPath+"conditional_probabilities_of_1-grams.tsv";
 		String distinctiveUnigramsFile = commonDataPath+"distinctive_1-grams_by_entropy_threshold.tsv";
@@ -48,8 +49,11 @@ public class SentimentAnalyser {
 		//args = new String[] { "-w", commonDataPath + "stanford_validation_polarity.tsv", distinctiveNgramsListFile,"test"};
 
 		// Run weka classifier algorithms for the generated arff files
-		args = new String[] { "-wc", "svm", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
-
+		//args = new String[] { "-wc", "svm", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+".arff" };
+		//args = new String[] { "-wc", "nb", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+"_entropy.arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+"_entropy.arff" };
+		//args = new String[] { "-wc", "nb", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+"_salience.arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+"_salience.arff" };
+		//args = new String[] { "-wc", "nb", commonDataPath+"train_ngram_"+ numberOfInputs+ "_" +ngramSize+"_information_gain.arff", commonDataPath+"test_ngram_"+ numberOfInputs+ "_" +ngramSize+"_information_gain.arff" };
+		
 		// Run custom multinomial naive bayes classifier for the data
 		//args = new String[] { "-mnbcpos", commonDataPath+"stanford_validation_polarity.tsv"};
 		//args = new String[] { "-mnbcngram", commonDataPath+"stanford_validation_polarity.tsv"};
@@ -115,6 +119,9 @@ public class SentimentAnalyser {
 					HashMap<String, Double[]> bigramsCondProbs = NgramExtractor
 							.readCondProbsOfNgramsFromFile(bigramCondProbsFile);
 
+					HashMap<String, Double[]> trigramsCondProbs = NgramExtractor
+							.readCondProbsOfNgramsFromFile(trigramCondProbsFile);
+
 					HashMap<String, Double> distinctiveUnigrams = NgramExtractor
 							.readDistinctiveNgramsFromFile(distinctiveUnigramsFile);
 
@@ -127,6 +134,9 @@ public class SentimentAnalyser {
 					HashMap<Long, Double[]> tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets, bigramsCondProbs, null, 2);
 
+					HashMap<Long, Double[]> tweetsClassTrigramProbs = MultinomialNaiveBayesClassifier
+							.calculateNgramLogProbsOfTweets(testTweets, trigramsCondProbs, null, 3);
+
 					if (ngramSize == 1){
 						//Use only unigrams
 						MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(testTweets, tweetsClassUnigramProbs);
@@ -135,9 +145,14 @@ public class SentimentAnalyser {
 						//Use only bigrams
 						MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(testTweets, tweetsClassBigramProbs);
 					}
+					if (ngramSize == 3){
+						//Use only bigrams
+						MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(testTweets, tweetsClassTrigramProbs);
+					}
 					//Use unigrams and bigrams together
 					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgrams(testTweets, tweetsClassBigramProbs, tweetsClassUnigramProbs);
-				
+					MultinomialNaiveBayesClassifier.classifyTweetsByAllNgrams(testTweets, tweetsClassTrigramProbs, tweetsClassBigramProbs, tweetsClassUnigramProbs);
+					
 				}
 				else if ((args[0].equals("-mnbcpos") || args[0]
 						.equals("--mnbclassifierpos"))) {

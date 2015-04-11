@@ -350,6 +350,83 @@ public class MultinomialNaiveBayesClassifier {
 		}
 	}
 
+	public static void classifyTweetsByAllNgrams(ArrayList<Tweet> testTweets,
+			HashMap<Long, Double[]> trigramClassProbs,  HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs) {
+
+		try {
+			String resultsPath = FileHandler
+					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+					+ File.separator
+					+ "mnb_results_with"
+					+ Constants.UNDERSCORE
+					+ "all_ngrams"  + ".tsv";
+
+			// This structure will keep class probabilities for each tweet:
+			// HashMap<TweetId, Probability[Class]>
+
+			File resultsFile = new File(resultsPath);
+			FileUtils.deleteQuietly(resultsFile);
+
+			Tweet.ClassLabel actualClassInfo = null;
+			Tweet.ClassLabel predictedClassInfo;
+			int correctClassification = 0;
+			int incorrectClassification = 0;
+			int totalInstances = 0;
+			// Traverse tweets to be calculate class probabilities for each
+			// tweet
+			FileUtils.write(resultsFile, "\nResults\n======\n\nIncorrect Classifications:\n",true);
+			System.out.print("\nResults\n======\n\nIncorrect Classifications:\n");
+			for (Tweet tweet : testTweets) {
+
+				actualClassInfo = tweet.getClassInfo();
+				predictedClassInfo = predictTweetClassByAllNgrams(trigramClassProbs.get(tweet.getId()), bigramClassProbs.get(tweet.getId()),unigramClassProbs.get(tweet.getId()));
+				// Count correct and incorrect classifications
+				if (predictedClassInfo == actualClassInfo)
+					correctClassification++;
+				else {
+					incorrectClassification++;
+				}
+				FileUtils.write(resultsFile,"\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent(),true);
+				System.out.print("\nId: " + tweet.getId()
+						+ Constants.SEPERATOR_CHAR + "Actual: "
+						+ actualClassInfo.name() + Constants.SEPERATOR_CHAR
+						+ "Predicted: " + predictedClassInfo.name()
+						+ Constants.SEPERATOR_CHAR + "Text: "
+						+ tweet.getOriginalContent());
+			}
+			totalInstances = correctClassification + incorrectClassification;
+			double successRatio = (double) correctClassification
+					/ totalInstances;
+			FileUtils.write(resultsFile,"\nCorrectly Classified Instances  "
+					+ Constants.SEPERATOR_CHAR + correctClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", (successRatio * 100)) + " %",true);
+			FileUtils.write(resultsFile,"\nIncorrectly Classified Instances"
+					+ Constants.SEPERATOR_CHAR + incorrectClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", ((1 - successRatio) * 100)) + " %",true);
+			FileUtils.write(resultsFile,"\nTotal Number of Instances       "
+					+ Constants.SEPERATOR_CHAR + totalInstances,true);
+			System.out.print("\nCorrectly Classified Instances  "
+					+ Constants.SEPERATOR_CHAR + correctClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", (successRatio * 100)) + " %");
+			System.out.print("\nIncorrectly Classified Instances"
+					+ Constants.SEPERATOR_CHAR + incorrectClassification
+					+ Constants.SEPERATOR_CHAR
+					+ String.format("%.4f", ((1 - successRatio) * 100)) + " %");
+			System.out.print("\nTotal Number of Instances       "
+					+ Constants.SEPERATOR_CHAR + totalInstances);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void classifyTweetsByBothNgramsAndPosTags(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs, HashMap<Long, Double[]> posTagClassProbs) {
 
@@ -455,7 +532,7 @@ public class MultinomialNaiveBayesClassifier {
 				predictedClassInfo = predictTweetClass(posTagClassProbs
 						.get(tweet.getId()));
 				// Count correct and incorrect classifications
-				if (predictedClassInfo == actualClassInfo)
+				if (predictedClassInfo.Neutral == actualClassInfo.Neutral)
 					correctClassification++;
 				else {
 					incorrectClassification++;
@@ -736,6 +813,59 @@ public class MultinomialNaiveBayesClassifier {
 					weighted[i] = unigramClassProbs[i];
 				}
 			}
+			double maxValue = Double.NEGATIVE_INFINITY;
+			int maxIndex = 0;
+			for (int i = 0; i < weighted.length; i++) {
+				if (weighted[i] > maxValue) {
+					maxValue = weighted[i];
+					maxIndex = i;
+				}
+			}
+			return Tweet.ClassLabel.values()[maxIndex];
+		}
+	
+	private static Tweet.ClassLabel predictTweetClassByAllNgrams(Double[] trigramClassProbs, Double[] bigramClassProbs,
+			Double[] unigramClassProbs) {
+		
+			//|p1-p2|/|p1+p2|
+			double trigramRatio = (trigramClassProbs[ClassLabel.Negative.ordinal()] - trigramClassProbs[ClassLabel.Positive
+		 			                                                     						.ordinal()])
+		 			                                                     						/ (trigramClassProbs[ClassLabel.Negative.ordinal()] + trigramClassProbs[ClassLabel.Positive
+		 			                                                     								.ordinal()]);
+		 	System.out.print("Trigram Ratio:" + String.format("%.05f", Math.abs(trigramRatio*100)) + " %, ");
+		 			
+		
+			double bigramRatio = (bigramClassProbs[ClassLabel.Negative.ordinal()] - bigramClassProbs[ClassLabel.Positive
+			                                                     						.ordinal()])
+			                                                     						/ (bigramClassProbs[ClassLabel.Negative.ordinal()] + bigramClassProbs[ClassLabel.Positive
+			                                                     								.ordinal()]);
+			System.out.print("Bigram Ratio:" + String.format("%.05f", Math.abs(bigramRatio*100)) + " %, ");
+			
+			double unigramRatio = (unigramClassProbs[ClassLabel.Negative.ordinal()] - unigramClassProbs[ClassLabel.Positive
+			 			                                                     						.ordinal()])
+			 			                                                     						/ (unigramClassProbs[ClassLabel.Negative.ordinal()] + unigramClassProbs[ClassLabel.Positive
+			 			                                                     								.ordinal()]);
+			
+			System.out.print("Unigram Ratio:" + String.format("%.05f", Math.abs(unigramRatio*100)) + " %\t");
+			
+			double[] weighted = new double[unigramClassProbs.length];
+			if (Math.abs(trigramRatio)>Math.max(Math.abs(bigramRatio),Math.abs(unigramRatio))){
+				for (int i = 0; i < weighted.length; i++) {
+					weighted[i] = trigramClassProbs[i];
+				}
+			}
+			else if (Math.abs(bigramRatio)>Math.max(Math.abs(trigramRatio),Math.abs(unigramRatio))){
+				for (int i = 0; i < weighted.length; i++) {
+					weighted[i] = bigramClassProbs[i];
+				}
+			}
+			else
+			{
+				for (int i = 0; i < weighted.length; i++) {
+					weighted[i] = unigramClassProbs[i];
+				}
+			}
+		
 			double maxValue = Double.NEGATIVE_INFINITY;
 			int maxIndex = 0;
 			for (int i = 0; i < weighted.length; i++) {

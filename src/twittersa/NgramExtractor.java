@@ -887,7 +887,7 @@ public class NgramExtractor {
 					+ " numeric\n", true);
 		}
 
-		FileUtils.write(wekaDataFile, "@attribute class {"
+		FileUtils.write(wekaDataFile, "@attribute classname {"
 				+ Tweet.ClassLabel.Negative.toString() + ","
 				+ Tweet.ClassLabel.Neutral.toString() + ","
 				+ Tweet.ClassLabel.Positive.toString() + "}\n", true);

@@ -14,6 +14,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.functions.SMO;
 import weka.filters.unsupervised.attribute.Remove;
@@ -27,13 +28,18 @@ public class WekaClassifier {
 	public static void getClassifierResults(String trainingDataPath,
 			String testDataPath, String algorithm, int numberOfInputs) {
 		try {
-			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
-			
-			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+			int ngramSize = Integer.parseInt(FileHandler
+					.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
+
+			String resultsPath = FileHandler
+					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
-					+ "weka-" + algorithm
-					+ Constants.UNDERSCORE + "ngram"
-					+ Constants.UNDERSCORE + numberOfInputs
+					+ "weka-"
+					+ algorithm
+					+ Constants.UNDERSCORE
+					+ "ngram"
+					+ Constants.UNDERSCORE
+					+ numberOfInputs
 					+ Constants.UNDERSCORE
 					+ Integer.toString(ngramSize) + ".log";
 
@@ -62,12 +68,16 @@ public class WekaClassifier {
 				J48 j48 = new J48();
 				j48.setUnpruned(true);
 				fc.setClassifier(j48);
+			} else if (algorithm.equals("mnb")) {
+				NaiveBayesMultinomial mnb = new NaiveBayesMultinomial();
+				fc.setClassifier(mnb);
 			} else if (algorithm.equals("nb")) {
-				NaiveBayesMultinomial nb = new NaiveBayesMultinomial();
+				NaiveBayes nb = new NaiveBayes();
 				fc.setClassifier(nb);
 			} else if (algorithm.equals("knn")) {
 				IBk ibk = new IBk();
-				ibk.setKNN(Integer.parseInt(FileHandler.readConfigValue(Constants.KNN_CONFIG)));
+				ibk.setKNN(Integer.parseInt(FileHandler
+						.readConfigValue(Constants.KNN_CONFIG)));
 				fc.setClassifier(ibk);
 			} else if (algorithm.equals("svm")) {
 				SMO svm = new SMO();
