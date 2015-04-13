@@ -28,7 +28,7 @@ public class MultinomialNaiveBayesClassifier {
 		// HashMap<TweetId, Probability[Class]>
 		HashMap<Long, Double[]> tweetClassProbs = new HashMap<Long, Double[]>();
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
 			Double[] priors = condProbs.get(Constants.PRIOR_PER_CLASS);
 			int numberOfClass = priors.length;
 			String ngramOfInterest = "";
@@ -195,8 +195,8 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> ngramClassProbs) {
 
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
-			String resultsPath = Constants.REPORTS_PATH
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
 					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
@@ -274,7 +274,7 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs) {
 
 		try {
-			String resultsPath = Constants.REPORTS_PATH
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
 					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
@@ -350,7 +350,7 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> trigramClassProbs,  HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs) {
 
 		try {
-			String resultsPath = Constants.REPORTS_PATH
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
 					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
@@ -426,7 +426,7 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> bigramClassProbs, HashMap<Long, Double[]> unigramClassProbs, HashMap<Long, Double[]> posTagClassProbs) {
 
 		try {
-			String resultsPath = Constants.REPORTS_PATH
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator
 					+ "mnb_results_with"
 					+ Constants.UNDERSCORE
@@ -501,7 +501,7 @@ public class MultinomialNaiveBayesClassifier {
 	public static void classifyTweetsByPosTags(ArrayList<Tweet> testTweets,
 			HashMap<Long, Double[]> posTagClassProbs) {
 		try {
-			String resultsPath = Constants.REPORTS_PATH
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator + "mnb_results_with_postags.tsv";
 
 			// This structure will keep class probabilities for each tweet:
@@ -576,8 +576,8 @@ public class MultinomialNaiveBayesClassifier {
 			HashMap<Long, Double[]> posTagClassProbs, double lambda) {
 		double successRatio = 0.0;
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
-			String resultsPath = Constants.REPORTS_PATH
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator + "mnb_results_with_"+ngramSize+"-grams_and_postags.tsv";
 
 			// This structure will keep class probabilities for each tweet:
@@ -655,8 +655,8 @@ public class MultinomialNaiveBayesClassifier {
 		// .readConfigValue(Constants.SUBJECTIVITY_THRESHOLD_CONFIG));
 		TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<>();
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
-			String resultsPath = Constants.REPORTS_PATH
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+			String resultsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ File.separator + "mnb_results_with_"+ngramSize+"-grams_and_postags_seperately.tsv";
 
 			// This structure will keep class probabilities for each tweet:

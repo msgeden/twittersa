@@ -158,7 +158,6 @@ public class SentimentAnalyser extends BasicParser {
 			if (commandLine.hasOption("n"))
 				FileHandler.writeConfigValue(Constants.NGRAM_SIZE_CONFIG,
 						commandLine.getOptionValue("n"));
-			
 			if (commandLine.hasOption("df"))
 				FileHandler.writeConfigValue(Constants.DATA_PATH_CONFIG,
 						commandLine.getOptionValue("df"));
@@ -182,12 +181,12 @@ public class SentimentAnalyser extends BasicParser {
 
 			if (commandLine.hasOption("xp")) {
 				ArrayList<Tweet> trainTweets = PreProcessor
-						.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):Constants.TRAINING_CORPUS_PATH);
+						.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):FileHandler.readConfigValue(Constants.TRAINING_CORPUS_PATH_CONFIG));
 				POSExtractor.calculateCondProbsOfPosTags(trainTweets);
 			}
 			if (commandLine.hasOption("xn")) {
 				ArrayList<Tweet> trainTweets = PreProcessor
-						.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):Constants.TRAINING_CORPUS_PATH);
+						.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):FileHandler.readConfigValue(Constants.TRAINING_CORPUS_PATH_CONFIG));
 				HashMap<String, Integer[]> ngrams = NgramExtractor
 						.generateNgramsOfTweets(trainTweets, false);
 				NgramExtractor.extractIGOfNgrams(ngrams);
@@ -200,22 +199,22 @@ public class SentimentAnalyser extends BasicParser {
 						.getTopRankedNgrams(commandLine.getOptionValue("d"));
 
 					ArrayList<Tweet> trainTweets = PreProcessor
-							.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):Constants.TRAINING_CORPUS_PATH);
+							.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):FileHandler.readConfigValue(Constants.TRAINING_CORPUS_PATH_CONFIG));
 					NgramExtractor
 							.prepareWekaFileDataFromTweets(
 									topRankedNgrams,
 									trainTweets,
-									Constants.REPORTS_PATH,
+									FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG),
 									false);
 				
 					ArrayList<Tweet> testTweets = PreProcessor
-							.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):Constants.TEST_CORPUS_PATH);
+							.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):FileHandler.readConfigValue(Constants.TEST_CORPUS_PATH_CONFIG));
 
 					NgramExtractor
 							.prepareWekaFileDataFromTweets(
 									topRankedNgrams,
 									testTweets,
-									Constants.REPORTS_PATH,
+									FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG),
 									true);
 				
 			}
@@ -225,11 +224,11 @@ public class SentimentAnalyser extends BasicParser {
 						commandLine.getOptionValue("wt"),
 						commandLine.getOptionValue("wv"),
 						commandLine.getOptionValue("cw"),
-						commandLine.hasOption("i")?Integer.parseInt(commandLine.getOptionValue("i")):Constants.NUMBER_OF_DATA_INPUT);
+						commandLine.hasOption("i")?Integer.parseInt(commandLine.getOptionValue("i")):Integer.parseInt(FileHandler.readConfigValue(Constants.NUMBER_OF_DATA_INPUT_CONFIG,"1000")));
 			}
 			if (commandLine.hasOption("cn")) {
 				ArrayList<Tweet> testTweets = PreProcessor
-						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):Constants.TEST_CORPUS_PATH);
+						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):FileHandler.readConfigValue(Constants.TEST_CORPUS_PATH_CONFIG));
 
 				HashMap<String, Double[]> unigramsCondProbs = null;
 				HashMap<String, Double[]> bigramsCondProbs = null;
@@ -285,7 +284,7 @@ public class SentimentAnalyser extends BasicParser {
 			}
 			if (commandLine.hasOption("cp")) {
 				ArrayList<Tweet> testTweets = PreProcessor
-						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):Constants.TEST_CORPUS_PATH);
+						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):FileHandler.readConfigValue(Constants.TEST_CORPUS_PATH_CONFIG));
 
 				HashMap<String, Double[]> posCondProbs = POSExtractor
 						.readCondProbsOfPosTagsFromFile(commandLine
@@ -301,7 +300,7 @@ public class SentimentAnalyser extends BasicParser {
 			}
 			if (commandLine.hasOption("cnp")) {
 				ArrayList<Tweet> testTweets = PreProcessor
-						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):Constants.TEST_CORPUS_PATH);
+						.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):FileHandler.readConfigValue(Constants.TEST_CORPUS_PATH_CONFIG));
 
 				HashMap<String, Double[]> posCondProbs = POSExtractor
 						.readCondProbsOfPosTagsFromFile(commandLine

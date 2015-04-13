@@ -19,7 +19,7 @@ public class TwitterAPIManager {
 		ArrayList<String> tweetList = new ArrayList<String>();
 		ArrayList<Tweet> neutralTweets = new ArrayList<Tweet>();
 		try {
-			String neutralTweetDatasetPath = Constants.DATA_PATH
+			String neutralTweetDatasetPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 					+ File.separator + userAccount.toLowerCase() + ".tsv";
 			File neutralTweetDatasetFile = new File(neutralTweetDatasetPath);
 			Twitter unauthenticatedTwitter = new TwitterFactory().getInstance();

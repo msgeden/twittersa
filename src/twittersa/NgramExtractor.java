@@ -22,8 +22,8 @@ public class NgramExtractor {
 		// HashMap<Ngram, Integer[Class]>
 		HashMap<String, Integer[]> ngrams = new HashMap<String, Integer[]>();
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
-			String statsPath = Constants.REPORTS_PATH
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+			String statsPath = FileHandler.readConfigValue(Constants.REPORTS_PATH_CONFIG)
 					+ "statistics_of_"
 					+ ngramSize + "-grams.tsv";
 			File statsFile = new File(statsPath);
@@ -97,8 +97,8 @@ public class NgramExtractor {
 
 	public static HashMap<String, Double[]> calculateCondProbsOfNgrams(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		String ngramsCondProbPath = Constants.DATA_PATH
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		String ngramsCondProbPath = FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "conditional_probabilities_of_"+ngramSize+"-grams.tsv";
 		File ngramsCondProbFile = new File(ngramsCondProbPath);
 
@@ -244,10 +244,10 @@ public class NgramExtractor {
 	
 	public static String extractIGOfNgrams(HashMap<String, Integer[]> ngrams) {
 
-		int ngramSize = Constants.NGRAM_SIZE;
-		int topRankedSize = Constants.TOP_RANKED_SIZE;
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		int topRankedSize = Integer.parseInt(FileHandler.readConfigValue(Constants.TOP_RANKED_SIZE_CONFIG,"5000"));
 
-		String rankedNgramsPath = Constants.DATA_PATH
+		String rankedNgramsPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_list_by_information_gain.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
@@ -376,8 +376,8 @@ public class NgramExtractor {
 
 	public static HashMap<String, Double> extractIGOfNgramsByThreshold(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		String ngramsByIGPath = Constants.DATA_PATH
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		String ngramsByIGPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_by_information_gain_threshold.tsv";		
 		File ngramsByIGFile = new File(ngramsByIGPath);
 
@@ -394,7 +394,7 @@ public class NgramExtractor {
 					.get(Constants.COUNT_OF_TWEETS_PER_CLASS);
 
 			// Remove this specific entry not to interpret as ngram
-			double threshold = Constants.IG_THRESHOLD;
+			double threshold = Double.parseDouble(FileHandler.readConfigValue(Constants.IG_THRESHOLD_CONFIG,"0.997"));
 
 			double[] totalNumberOfTweetsInClass = new double[tweetCountPerClass.length];
 			int numberOfClass = tweetCountPerClass.length;
@@ -486,10 +486,10 @@ public class NgramExtractor {
 
 	public static String extractEntropyOfNgrams(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		int topRankedSize = Constants.TOP_RANKED_SIZE;
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		int topRankedSize = Integer.parseInt(FileHandler.readConfigValue(Constants.TOP_RANKED_SIZE_CONFIG,"5000"));
 
-		String rankedNgramsPath = Constants.DATA_PATH
+		String rankedNgramsPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_list_by_entropy.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
@@ -592,8 +592,8 @@ public class NgramExtractor {
 
 	public static HashMap<String, Double> extractEntropyOfNgramsByThreshold(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		String ngramsByEntropyPath = Constants.DATA_PATH
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		String ngramsByEntropyPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_by_entropy_threshold.tsv";
 		File ngramsByEntropyFile = new File(ngramsByEntropyPath);
 
@@ -608,7 +608,7 @@ public class NgramExtractor {
 			Integer[] tweetCountPerClass = ngrams
 					.get(Constants.COUNT_OF_TWEETS_PER_CLASS);
 			// Remove this specific entry not to interpret as ngram
-			double threshold = Constants.ENTROPY_THRESHOLD;
+			double threshold = Double.parseDouble(FileHandler.readConfigValue(Constants.ENTROPY_THRESHOLD_CONFIG,"0.8"));
 			// Iterate ngram hashmap to calculate entropy gain for each ngram
 			for (Map.Entry<String, Integer[]> entry : ngrams.entrySet()) {
 
@@ -652,10 +652,10 @@ public class NgramExtractor {
 
 	public static String extractSalienceOfNgrams(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		int topRankedSize = Constants.TOP_RANKED_SIZE;
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		int topRankedSize = Integer.parseInt(FileHandler.readConfigValue(Constants.TOP_RANKED_SIZE_CONFIG,"5000"));
 
-		String rankedNgramsPath = Constants.DATA_PATH
+		String rankedNgramsPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_list_by_salience.tsv";
 		File rankedNgramsFile = new File(rankedNgramsPath);
 
@@ -677,7 +677,7 @@ public class NgramExtractor {
 			// Retrieve the number of tweets per class from the specific entry
 			Integer[] tweetCountPerClass = ngrams
 					.get(Constants.COUNT_OF_TWEETS_PER_CLASS);
-			double threshold = Constants.SALIENCE_THRESHOLD;
+			double threshold =  Double.parseDouble(FileHandler.readConfigValue(Constants.SALIENCE_THRESHOLD_CONFIG,"0.8"));
 			// Iterate ngram hashmap to calculate salience for each
 			// ngram
 			for (Map.Entry<String, Integer[]> entry : ngrams.entrySet()) {
@@ -759,8 +759,8 @@ public class NgramExtractor {
 
 	public static HashMap<String, Double> extractSalienceOfNgramsByThreshold(
 			HashMap<String, Integer[]> ngrams) {
-		int ngramSize = Constants.NGRAM_SIZE;
-		String ngramsBySaliencePath = Constants.DATA_PATH
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		String ngramsBySaliencePath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ "distinctive_"+ngramSize+"-grams_by_salience_threshold.tsv";
 		File ngramsBySalienceFile = new File(ngramsBySaliencePath);
 
@@ -776,7 +776,7 @@ public class NgramExtractor {
 					.get(Constants.COUNT_OF_TWEETS_PER_CLASS);
 			// Remove this specific entry not to interpret as ngram
 			// ngrams.remove(Constants.COUNT_OF_TWEETS_PER_CLASS);
-			double threshold = Constants.SALIENCE_THRESHOLD;
+			double threshold = Double.parseDouble(FileHandler.readConfigValue(Constants.SALIENCE_THRESHOLD_CONFIG,"0.8"));
 			// Iterate ngram hashmap to calculate salience for each ngram
 			for (Map.Entry<String, Integer[]> entry : ngrams.entrySet()) {
 
@@ -826,7 +826,7 @@ public class NgramExtractor {
 
 	public static HashMap<String, Double> getTopRankedNgrams(String filePath)
 			throws IOException {
-		int numberOfDataInput = Constants.NUMBER_OF_DATA_INPUT;
+		int numberOfDataInput = Integer.parseInt(FileHandler.readConfigValue(Constants.NUMBER_OF_DATA_INPUT_CONFIG,"1000"));
 		HashMap<String, Double> topRankedNgrams = new HashMap<String, Double>();
 		List<String> fileLines = FileUtils.readLines(new File(filePath));
 		for (int i = 1; i <= numberOfDataInput; i++) {
@@ -840,14 +840,14 @@ public class NgramExtractor {
 	public static File prepareWekaFileHeader(
 			HashMap<String, Double> topRankedNgrams, boolean isTestData)
 			throws IOException {
-		int ngramSize = Constants.NGRAM_SIZE;
-		int numberOfDataInput = Constants.NUMBER_OF_DATA_INPUT;
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		int numberOfDataInput = Integer.parseInt(FileHandler.readConfigValue(Constants.NUMBER_OF_DATA_INPUT_CONFIG,"1000"));
 		// Data class label for reports and input files
 		String trainOrTestLabel = isTestData ? Constants.TEST_LABEL
 				: Constants.TRAIN_LABEL;
 
 		// Generate data file and prepare it with its headers
-		String wekaDataFilePath = (Constants.DATA_PATH
+		String wekaDataFilePath = ( FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
 				+ trainOrTestLabel
 				+ Constants.UNDERSCORE
 				+ "ngram"
@@ -891,8 +891,7 @@ public class NgramExtractor {
 			boolean isTestData) {
 
 		try {
-			int ngramSize = Constants.NGRAM_SIZE;
-			
+			int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
 			// Arff file that will keep traning and test data values
 			File dataFile = prepareWekaFileHeader(topRankedNgrams,
 					isTestData);

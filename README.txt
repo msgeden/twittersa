@@ -5,8 +5,8 @@ Created by: Munir Geden, Olawole Oni, and Arwa Alamoudi
 *************************************
 Library folder and file requirements
 *************************************
-1. a "data" folder needs to be created where the dataset files and other generated data files should be placed
-2. a "reports" folder needs to be created where the output results of the classifications would be placed.
+1. a "data" folder needs to be specified in config.properties where the dataset files and other generated data files should be placed
+2. a "reports" folder needs to be specified in config.properties where the output results of the classifications would be placed.
 3. "stanford_polarity_0_5.tsv" training dataset file should be placed in "data" folder created. Training dataset file can be downloaded from http://1drv.ms/1yohYkm
 4. "stanford_validation_polarity.tsv" validation dataset file in that should be placed in "data" folder created. Validation dataset file can be downloaded from http://1drv.ms/1yohYkm
 5. "tree-tagger" library folder with English tagset and configured path location in "config.properties" file, for mac-unix and windows version can be downloaded from http://1drv.ms/1yohYkm for windows version
