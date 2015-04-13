@@ -881,7 +881,6 @@ public class MultinomialNaiveBayesClassifier {
 			Double[] posTagClassProbs) {
 		
 			double[] bigramClassDiffs = new double[bigramClassProbs.length]; 
-			//|p1-p2|/|p1+p2|
 			bigramClassDiffs[0] = Math.abs(bigramClassProbs[ClassLabel.Negative.ordinal()]-bigramClassProbs[ClassLabel.Neutral.ordinal()]);
 			bigramClassDiffs[1] = Math.abs(bigramClassProbs[ClassLabel.Neutral.ordinal()]-bigramClassProbs[ClassLabel.Positive.ordinal()]);
 			bigramClassDiffs[2] = Math.abs(bigramClassProbs[ClassLabel.Negative.ordinal()]-bigramClassProbs[ClassLabel.Positive.ordinal()]);

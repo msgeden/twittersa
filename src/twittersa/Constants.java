@@ -15,6 +15,8 @@ public class Constants {
 	public static final String POS_THRESHOLD_CONFIG = "posThreshold";
 	public static final String REPORTS_PATH_CONFIG = "reportsPath";
 	public static final String DATA_PATH_CONFIG = "dataPath";
+	public static final String TRAINING_CORPUS_PATH_CONFIG = "trainCorpus";
+	public static final String TEST_CORPUS_PATH_CONFIG = "testCorpus";
 	public static final String TREE_TAGGER_PATH_CONFIG = "treeTaggerPath";
 	public static final String KNN_CONFIG = "kValue";
 	public static final String IG_THRESHOLD_CONFIG = "igThreshold";

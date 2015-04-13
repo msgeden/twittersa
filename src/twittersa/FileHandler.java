@@ -20,8 +20,8 @@ import org.apache.commons.io.FileUtils;
 
 public class FileHandler {
 
-	private static final String configFile = "config.properties";
-	
+	//private static final String configFile = "config.properties";
+	private static final String configFile = System.getProperty("user.dir")+ File.separator + "config.properties";
 	public static String createDirectory(String path, String dir) {
 		File directory = new File(path + dir);
 		if (!directory.exists()) {
@@ -43,12 +43,35 @@ public class FileHandler {
 		return prop.getProperty(key);
 	}
 	
-	public static void readAndSplitFile(
-			String directory, String fileName, int ratio) {
-		File reducedFile = new File(directory + "reduced.csv");
+    public static void writeConfigValue(String key, String val) {
+        Properties prop = new Properties();
+        InputStream input;
+        OutputStream output;
+        try {
+            input = new FileInputStream(configFile);
+            prop.load(input);
+        } catch (IOException e) {
+            System.out.println("Cannot read configuration file(s)\n" + e.getMessage());
+        }
+        prop.setProperty(key, val);
+        try
+        {
+            output = new FileOutputStream(configFile);
+            prop.store(output, "");
+        } catch(IOException e) {
+            System.out.println("Cannot read configuration file(s)\n" + e.getMessage());
+        }
+    }
+
+	public static void splitFile(
+			String filePath, int ratio) {
+		File file = new File(filePath);
+		String fileName = file.getName();
+		fileName = fileName.replace(".tsv", "_reduced.tsv");
+		String directory = file.getAbsoluteFile().getParentFile().getAbsolutePath();
+		File reducedFile = new File(directory + File.separator + fileName);
 		FileUtils.deleteQuietly(reducedFile);
 		try {
-			File file = new File(directory + fileName);
 			List<String> lines = FileUtils.readLines(file);
 			int count = 0;
 			for (String line : lines) {
@@ -62,7 +85,7 @@ public class FileHandler {
 		}		
 	}
 	@SuppressWarnings("deprecation")
-	public static ArrayList<Tweet> readAndSplitTweets(
+	public static ArrayList<Tweet> splitTweets(
 			String directory, String fileName) {
 		ArrayList<Tweet> tweets = new ArrayList<Tweet>();
 		File testData = new File(directory + "test.tsv");
