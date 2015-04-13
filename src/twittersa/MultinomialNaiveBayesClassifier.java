@@ -532,7 +532,7 @@ public class MultinomialNaiveBayesClassifier {
 				predictedClassInfo = predictTweetClass(posTagClassProbs
 						.get(tweet.getId()));
 				// Count correct and incorrect classifications
-				if (predictedClassInfo.Neutral == actualClassInfo.Neutral)
+				if (predictedClassInfo == actualClassInfo)
 					correctClassification++;
 				else {
 					incorrectClassification++;

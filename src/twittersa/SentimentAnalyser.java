@@ -29,18 +29,19 @@ public class SentimentAnalyser extends BasicParser {
 				.addOption("n", "-ngram-size", true, "set ngram length [n]")
 				.addOption("t", "training-file", true,
 						"specify the training data file [f]")
+				.addOption("dd", "define-data-path", true,
+						"specify the absolute path data of data folder [p]")
+				.addOption("dr", "define-report-path", true,
+						"specify the absolute path of report folder [p]")
 				.addOption("v", "test-file", true,
 						"specify the test/validation data file [f]")
 				.addOption(
 						"xn",
 						"extract-ngrams",
-						true,
+						false,
 						"construct the class conditional probabilities of ngrams and extract the distinctive ngrams")
-				.addOption(
-						"xp",
-						"extract-postags",
-						true,
-						"construct the class conditional probabilities of POSTags and extract the POSTags")
+				.addOption("xp", "extract-postags", false,
+						"construct the class conditional probabilities of POSTags")
 				.addOption("n1", "unigram-condprobs-file", true,
 						"specify unigrams file [f]")
 				.addOption("n2", "bigram-condprobs-file", true,
@@ -52,16 +53,26 @@ public class SentimentAnalyser extends BasicParser {
 				.addOption("d", "distinctive-ngrams-file", true,
 						"specify the distinctive ngrams file [f]")
 				.addOption(
+						"cp",
+						"classify-by-postags",
+						false,
+						"run multinomial naive bayes classifier for the validation file by using POSTags")
+				.addOption(
 						"cn",
 						"classify-by-ngrams",
-						true,
-						"run multinomial naive bayes classifier with the suitable options => 1:unigrams, 2:bigrams, 3:unigrams+bigrams [o]")
-				.addOption("cp", "classify-by-postags", true,
-						"run multinomial naive bayes classifier on the given validation file [f]")
+						false,
+						"run multinomial naive bayes classifier for the validation file by using given ngrams")
+				.addOption(
+						"cnp",
+						"classify-by-ngrams-postags",
+						false,
+						"run multinomial naive bayes classifier for the validation file by using given ngrams and POSTags")
+				.addOption("l", "lambda", true,
+						"specify the lambda value to tune weight of ngram and POSTag features [l]")
 				.addOption(
 						"gw",
 						"generate-weka-data",
-						true,
+						false,
 						"generate weka *.arrf files of the given data file from the distinctive ngrams list [f]")
 				.addOption(
 						"i",
@@ -76,12 +87,65 @@ public class SentimentAnalyser extends BasicParser {
 						"specify the test/validation *.arff file [f] for weka classifier");
 
 		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
-		//args = new String[] { "-s",
-		//		commonDataPath + "stanford_polarity_0_1.tsv", "-r", "10" };
+		// args = new String[] { "-s", commonDataPath +
+		// "stanford_polarity_0_1.tsv", "-r", "10" };
+
+		// args = new String[] { "-xp", "-t", commonDataPath +
+		// "stanford_polarity_0_1_reduced.tsv"};
+
+		// args = new String[] { "-xn", "-t", commonDataPath +
+		// "stanford_polarity_0_1_reduced.tsv", "-n", "1"};
+		// args = new String[] { "-xn", "-t", commonDataPath +
+		// "stanford_polarity_0_1_reduced.tsv", "-n", "2"};
+
+		// args = new String[] { "-cp", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-p",commonDataPath +
+		// "conditional_probabilities_of_postags.tsv"};
+
+		// args = new String[] { "-cn", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-n1",commonDataPath +
+		// "conditional_probabilities_of_1-grams.tsv"};
+		// args = new String[] { "-cn", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-n2",commonDataPath +
+		// "conditional_probabilities_of_2-grams.tsv"};
+		// args = new String[] { "-cn", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-n1",commonDataPath +
+		// "conditional_probabilities_of_1-grams.tsv", "-n2",commonDataPath +
+		// "conditional_probabilities_of_2-grams.tsv"};
+
+		// args = new String[] { "-cnp", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-p",commonDataPath +
+		// "conditional_probabilities_of_postags.tsv", "-n1",commonDataPath +
+		// "conditional_probabilities_of_1-grams.tsv", "-n2",commonDataPath +
+		// "conditional_probabilities_of_2-grams.tsv"};
+		// args = new String[] { "-cnp", "-v", commonDataPath +
+		// "stanford_validation_polarity.tsv", "-p",commonDataPath +
+		// "conditional_probabilities_of_postags.tsv", "-n1",commonDataPath +
+		// "conditional_probabilities_of_1-grams.tsv", "-l", "0.45"};
+
+		//args = new String[] {
+		//		"-gw",
+		//		"-n",
+		//		"1",
+		//		"-t",
+		//		commonDataPath + "stanford_polarity_0_1_reduced.tsv",
+		//		"-v",
+		//		commonDataPath + "stanford_validation_polarity.tsv",
+		//		"-d",
+		//		commonDataPath
+		//				+ "distinctive_1-grams_list_by_information_gain.tsv" };
+
+		args = new String[] {
+				"-cw",
+				"mnb",
+				"-wt",
+				commonDataPath + "train_ngram_1000_1.tsv",
+				"-wv",
+				commonDataPath + "test_ngram_1000_1.tsv"
+				};
 
 		try {
 			CommandLine commandLine = parser.parse(options, args);
-			System.out.println(commandLine.getOptionValue("b"));
 			if (commandLine.hasOption("s"))
 				FileHandler.splitFile(commandLine.getOptionValue("s"),
 						Integer.parseInt(commandLine.getOptionValue("r")));
@@ -96,9 +160,10 @@ public class SentimentAnalyser extends BasicParser {
 				FileHandler.writeConfigValue(Constants.TEST_CORPUS_PATH_CONFIG,
 						commandLine.getOptionValue("v"));
 			if (commandLine.hasOption("i"))
-				FileHandler.writeConfigValue(Constants.NUMBER_OF_DATA_INPUT_CONFIG,
+				FileHandler.writeConfigValue(
+						Constants.NUMBER_OF_DATA_INPUT_CONFIG,
 						commandLine.getOptionValue("i"));
-			
+
 			if (commandLine.hasOption("xp")) {
 				ArrayList<Tweet> trainTweets = PreProcessor
 						.processTweets(commandLine.getOptionValue("t"));
@@ -115,31 +180,40 @@ public class SentimentAnalyser extends BasicParser {
 				NgramExtractor.calculateCondProbsOfNgrams(ngrams);
 			}
 			if (commandLine.hasOption("gw")) {
-				ArrayList<Tweet> trainTweets = PreProcessor
-						.processTweets(commandLine.getOptionValue("t"));
-				HashMap<String, Double> topRankedNgrams = NgramExtractor.getTopRankedNgrams(commandLine.getOptionValue("d"));
-				NgramExtractor
-						.prepareWekaFileDataFromTweets(
-								topRankedNgrams,
-								trainTweets,
-								FileHandler
-										.readConfigValue(Constants.REPORTS_PATH_CONFIG),
-								false);
-				ArrayList<Tweet> testTweets = PreProcessor
-						.processTweets(commandLine.getOptionValue("v"));
-				
-				NgramExtractor
-						.prepareWekaFileDataFromTweets(
-								topRankedNgrams,
-								testTweets,
-								FileHandler
-										.readConfigValue(Constants.REPORTS_PATH_CONFIG),
-								true);
+				HashMap<String, Double> topRankedNgrams = NgramExtractor
+						.getTopRankedNgrams(commandLine.getOptionValue("d"));
+
+				if (commandLine.hasOption("t")) {
+					ArrayList<Tweet> trainTweets = PreProcessor
+							.processTweets(commandLine.getOptionValue("t"));
+					NgramExtractor
+							.prepareWekaFileDataFromTweets(
+									topRankedNgrams,
+									trainTweets,
+									FileHandler
+											.readConfigValue(Constants.REPORTS_PATH_CONFIG),
+									false);
+				}
+				if (commandLine.hasOption("v")) {
+					ArrayList<Tweet> testTweets = PreProcessor
+							.processTweets(commandLine.getOptionValue("v"));
+
+					NgramExtractor
+							.prepareWekaFileDataFromTweets(
+									topRankedNgrams,
+									testTweets,
+									FileHandler
+											.readConfigValue(Constants.REPORTS_PATH_CONFIG),
+									true);
+				}
 			}
 			if (commandLine.hasOption("cw")) {
-				
-				WekaClassifier.getClassifierResults(commandLine.getOptionValue("wt"), commandLine.getOptionValue("wv"),
-						commandLine.getOptionValue("cw"), Integer.parseInt(commandLine.getOptionValue("i")));
+
+				WekaClassifier.getClassifierResults(
+						commandLine.getOptionValue("wt"),
+						commandLine.getOptionValue("wv"),
+						commandLine.getOptionValue("cw"),
+						Integer.parseInt(commandLine.getOptionValue("i")));
 			}
 			if (commandLine.hasOption("cn")) {
 				ArrayList<Tweet> testTweets = PreProcessor
@@ -151,47 +225,47 @@ public class SentimentAnalyser extends BasicParser {
 				HashMap<Long, Double[]> tweetsClassUnigramProbs = null;
 				HashMap<Long, Double[]> tweetsClassBigramProbs = null;
 				HashMap<Long, Double[]> tweetsClassTrigramProbs = null;
-				if (commandLine.hasOption("n1"))
-				{
+				if (commandLine.hasOption("n1")) {
 					unigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n1"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n1"));
 					tweetsClassUnigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									unigramsCondProbs, null, 1);
 
 				}
-				if (commandLine.hasOption("n2"))
-				{
+				if (commandLine.hasOption("n2")) {
 					bigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n2"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n2"));
 					tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									bigramsCondProbs, null, 2);
 				}
-				if (commandLine.hasOption("n3"))
-				{
+				if (commandLine.hasOption("n3")) {
 					trigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n3"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n3"));
 					tweetsClassTrigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									trigramsCondProbs, null, 3);
 				}
-				if (commandLine.hasOption("n1") && commandLine.hasOption("n2")&& commandLine.hasOption("n2")) 
-				{
-					MultinomialNaiveBayesClassifier.classifyTweetsByAllNgrams(testTweets, tweetsClassTrigramProbs, tweetsClassBigramProbs, tweetsClassUnigramProbs);
-				}
-				else if (commandLine.hasOption("n1") && commandLine.hasOption("n2")) {
+				if (commandLine.hasOption("n1") && commandLine.hasOption("n2")
+						&& commandLine.hasOption("n3")) {
+					MultinomialNaiveBayesClassifier.classifyTweetsByAllNgrams(
+							testTweets, tweetsClassTrigramProbs,
+							tweetsClassBigramProbs, tweetsClassUnigramProbs);
+				} else if (commandLine.hasOption("n1")
+						&& commandLine.hasOption("n2")) {
 					// Use unigrams and bigrams together
 					MultinomialNaiveBayesClassifier.classifyTweetsByBothNgrams(
 							testTweets, tweetsClassBigramProbs,
 							tweetsClassUnigramProbs);
-				}
-				else if (commandLine.hasOption("n1")) {
+				} else if (commandLine.hasOption("n1")) {
 					// Use only unigrams
 					MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(
 							testTweets, tweetsClassUnigramProbs);
-				}
-				else if (commandLine.hasOption("n2")) {
+				} else if (commandLine.hasOption("n2")) {
 					// Use only unigrams
 					MultinomialNaiveBayesClassifier.classifyTweetsByNgrams(
 							testTweets, tweetsClassBigramProbs);
@@ -202,7 +276,8 @@ public class SentimentAnalyser extends BasicParser {
 						.processTweets(commandLine.getOptionValue("v"));
 
 				HashMap<String, Double[]> posCondProbs = POSExtractor
-						.readCondProbsOfPosTagsFromFile(commandLine.getOptionValue("p"));
+						.readCondProbsOfPosTagsFromFile(commandLine
+								.getOptionValue("p"));
 
 				HashMap<Long, Double[]> tweetsClassPosProbs = MultinomialNaiveBayesClassifier
 						.calculatePosTagLogProbsOfTweets(testTweets,
@@ -217,7 +292,8 @@ public class SentimentAnalyser extends BasicParser {
 						.processTweets(commandLine.getOptionValue("v"));
 
 				HashMap<String, Double[]> posCondProbs = POSExtractor
-						.readCondProbsOfPosTagsFromFile(commandLine.getOptionValue("p"));
+						.readCondProbsOfPosTagsFromFile(commandLine
+								.getOptionValue("p"));
 
 				HashMap<Long, Double[]> tweetsClassPosProbs = MultinomialNaiveBayesClassifier
 						.calculatePosTagLogProbsOfTweets(testTweets,
@@ -227,57 +303,56 @@ public class SentimentAnalyser extends BasicParser {
 				HashMap<String, Double[]> bigramsCondProbs = null;
 				HashMap<Long, Double[]> tweetsClassUnigramProbs = null;
 				HashMap<Long, Double[]> tweetsClassBigramProbs = null;
-				if (commandLine.hasOption("n1") && commandLine.hasOption("n2"))
-				{
+				if (commandLine.hasOption("n1") && commandLine.hasOption("n2")) {
 					unigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n1"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n1"));
 					tweetsClassUnigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									unigramsCondProbs, null, 1);
 
 					bigramsCondProbs = NgramExtractor
-							.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n2"));
-						tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
-								.calculateNgramLogProbsOfTweets(testTweets,
-										bigramsCondProbs, null, 2);
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n2"));
+					tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
+							.calculateNgramLogProbsOfTweets(testTweets,
+									bigramsCondProbs, null, 2);
 
 					MultinomialNaiveBayesClassifier
-						.classifyTweetsByBothNgramsAndPosTags(testTweets,
-								tweetsClassBigramProbs,
-								tweetsClassUnigramProbs,
-								tweetsClassPosProbs);						
-				}
-				else if (commandLine.hasOption("n1"))
-				{
+							.classifyTweetsByBothNgramsAndPosTags(testTweets,
+									tweetsClassBigramProbs,
+									tweetsClassUnigramProbs,
+									tweetsClassPosProbs);
+				} else if (commandLine.hasOption("n1")) {
 					unigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n1"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n1"));
 					tweetsClassUnigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									unigramsCondProbs, null, 1);
 					MultinomialNaiveBayesClassifier
-					.classifyTweetsByNgramsAndPosTags(
-							testTweets,
-							tweetsClassUnigramProbs,
-							tweetsClassPosProbs,
-							Double.parseDouble(commandLine.getOptionValue("l")));
+							.classifyTweetsByNgramsAndPosTags(testTweets,
+									tweetsClassUnigramProbs,
+									tweetsClassPosProbs, Double
+											.parseDouble(commandLine
+													.getOptionValue("l")));
 				}
 
-				else if (commandLine.hasOption("n2"))
-				{
+				else if (commandLine.hasOption("n2")) {
 					bigramsCondProbs = NgramExtractor
-						.readCondProbsOfNgramsFromFile(commandLine.getOptionValue("n2"));
+							.readCondProbsOfNgramsFromFile(commandLine
+									.getOptionValue("n2"));
 					tweetsClassBigramProbs = MultinomialNaiveBayesClassifier
 							.calculateNgramLogProbsOfTweets(testTweets,
 									bigramsCondProbs, null, 2);
 					MultinomialNaiveBayesClassifier
-					.classifyTweetsByNgramsAndPosTags(
-							testTweets,
-							tweetsClassBigramProbs,
-							tweetsClassPosProbs,
-							Double.parseDouble(commandLine.getOptionValue("l")));
+							.classifyTweetsByNgramsAndPosTags(testTweets,
+									tweetsClassBigramProbs,
+									tweetsClassPosProbs, Double
+											.parseDouble(commandLine
+													.getOptionValue("l")));
 				}
 			}
-			
 
 		} catch (Exception parseException) {
 			System.out.println("Exception " + parseException.getMessage());
