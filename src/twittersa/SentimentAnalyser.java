@@ -199,19 +199,17 @@ public class SentimentAnalyser extends BasicParser {
 				HashMap<String, Double> topRankedNgrams = NgramExtractor
 						.getTopRankedNgrams(commandLine.getOptionValue("d"));
 
-				if (commandLine.hasOption("t")) {
 					ArrayList<Tweet> trainTweets = PreProcessor
-							.processTweets(commandLine.getOptionValue("t"));
+							.processTweets(commandLine.hasOption("t")?commandLine.getOptionValue("t"):Constants.TRAINING_CORPUS_PATH);
 					NgramExtractor
 							.prepareWekaFileDataFromTweets(
 									topRankedNgrams,
 									trainTweets,
 									Constants.REPORTS_PATH,
 									false);
-				}
-				if (commandLine.hasOption("v")) {
+				
 					ArrayList<Tweet> testTweets = PreProcessor
-							.processTweets(commandLine.getOptionValue("v"));
+							.processTweets(commandLine.hasOption("v")?commandLine.getOptionValue("v"):Constants.TEST_CORPUS_PATH);
 
 					NgramExtractor
 							.prepareWekaFileDataFromTweets(
@@ -219,7 +217,7 @@ public class SentimentAnalyser extends BasicParser {
 									testTweets,
 									Constants.REPORTS_PATH,
 									true);
-				}
+				
 			}
 			if (commandLine.hasOption("cw")) {
 

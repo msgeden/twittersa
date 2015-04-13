@@ -283,8 +283,9 @@ public class POSExtractor {
 					for (int i=0;i<probs.length;i++)
 						probs[i] = Double.valueOf(tokens[i+1]);
 					posTagsWithCondProbs.put(tokens[0], probs);
-				}		
+				}
 			}
+			System.out.println("Class conditional probabilities of postags are read from the file");
 		}
 		catch (Exception e) {
 			e.printStackTrace();

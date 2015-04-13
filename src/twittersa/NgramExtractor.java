@@ -206,6 +206,7 @@ public class NgramExtractor {
 					ngramsWithCondProbs.put(tokens[0], probs);
 				}		
 			}
+			System.out.println("Class conditional probabilities of ngrams are read from the file");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -233,6 +234,7 @@ public class NgramExtractor {
 					distinctiveNgramsWithScores.put(tokens[0], score);
 				}		
 			}
+			System.out.println("Distintive ngrams are read from the file.");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -831,6 +833,7 @@ public class NgramExtractor {
 			String[] values = fileLines.get(i).split(Constants.SEPERATOR_CHAR);
 			topRankedNgrams.put(values[1], Double.parseDouble(values[2]));
 		}
+		System.out.println("Distinctive ngrams are read from the file");
 		return topRankedNgrams;
 	}
 
@@ -895,7 +898,7 @@ public class NgramExtractor {
 					isTestData);
 
 			// This will keep the binary values of ngrams
-
+			System.out.println("Generating *.arff file for " + (isTestData?"validation":"training") +".....");
 			for (Tweet tweet : tweets) {
 				HashMap<String, Integer> calculatedData = new HashMap<String, Integer>();
 				for (Map.Entry<String, Double> entry : topRankedNgrams
@@ -928,7 +931,9 @@ public class NgramExtractor {
 					FileUtils.write(dataFile, entry.getValue() + ",", true);
 				}
 				FileUtils.write(dataFile, className + "\n", true);
+				
 			}
+			System.out.println("Generation of *.arff file for " + (isTestData?"validation":"training") +" is completed.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
