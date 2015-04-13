@@ -28,11 +28,9 @@ public class WekaClassifier {
 	public static void getClassifierResults(String trainingDataPath,
 			String testDataPath, String algorithm, int numberOfInputs) {
 		try {
-			int ngramSize = Integer.parseInt(FileHandler
-					.readConfigValue(Constants.NGRAM_SIZE_CONFIG));
-
-			String resultsPath = FileHandler
-					.readConfigValue(Constants.REPORTS_PATH_CONFIG)
+			int ngramSize = Constants.NGRAM_SIZE;
+			
+			String resultsPath = Constants.REPORTS_PATH
 					+ File.separator
 					+ "weka-"
 					+ algorithm
@@ -76,8 +74,7 @@ public class WekaClassifier {
 				fc.setClassifier(nb);
 			} else if (algorithm.equals("knn")) {
 				IBk ibk = new IBk();
-				ibk.setKNN(Integer.parseInt(FileHandler
-						.readConfigValue(Constants.KNN_CONFIG)));
+				ibk.setKNN(Constants.KNN);
 				fc.setClassifier(ibk);
 			} else if (algorithm.equals("svm")) {
 				SMO svm = new SMO();

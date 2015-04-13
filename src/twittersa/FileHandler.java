@@ -43,6 +43,21 @@ public class FileHandler {
 		return prop.getProperty(key);
 	}
 	
+	public static String readConfigValue(String key, String defaultValue) {
+		Properties prop = new Properties();
+		InputStream input;
+		String value = defaultValue;
+		try {
+			input = new FileInputStream(configFile);
+			prop.load(input);
+			value = prop.getProperty(key);
+		} catch (IOException e) {
+			System.out.println("Cannot read configuration file(s)\n"
+					+ e.getMessage());
+		}
+		return value;
+	}
+	
     public static void writeConfigValue(String key, String val) {
         Properties prop = new Properties();
         InputStream input;

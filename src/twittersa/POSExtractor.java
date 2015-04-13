@@ -21,7 +21,7 @@ public class POSExtractor {
 			ArrayList<Tweet> tweets) {
 			// TreeTagger Library folder
 			System.setProperty("treetagger.home",
-					FileHandler.readConfigValue(Constants.TREE_TAGGER_PATH_CONFIG));
+					Constants.TREE_TAGGER_PATH);
 			TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<String>();
 			final HashMap<String, Double[]> posTagsWithCondProbs = new HashMap<String, Double[]>();
 			final HashMap<String, Integer[]> posTagsFrequencies = new HashMap<String, Integer[]>();
@@ -106,14 +106,13 @@ public class POSExtractor {
 			ArrayList<Tweet> tweets) {
 			// TreeTagger Library folder
 			System.setProperty("treetagger.home",
-					FileHandler.readConfigValue(Constants.TREE_TAGGER_PATH_CONFIG));
+					Constants.TREE_TAGGER_PATH);
 			TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<String>();
 			final HashMap<String, Double> posTweets = new HashMap<String, Double>();
 			final HashMap<String, Double> negTweets = new HashMap<String, Double>();
 			final HashMap<String, Double> uniquePOS = new HashMap<String, Double>();
 			final Integer[] tweetClass = { 0 };// 0:Negative, 1:Positive
-			double posThreshold = Double.parseDouble(FileHandler
-					.readConfigValue(Constants.POS_THRESHOLD_CONFIG));
+			double posThreshold = Constants.POS_THRESHOLD;
 			try {
 				tt.setModel("english-utf8.par:iso8859-1");
 				tt.setHandler(new TokenHandler<String>() {
@@ -186,14 +185,13 @@ public class POSExtractor {
 			ArrayList<Tweet> tweets) {
 		// TreeTagger Library folder
 		System.setProperty("treetagger.home",
-				FileHandler.readConfigValue(Constants.TREE_TAGGER_PATH_CONFIG));
+				Constants.TREE_TAGGER_PATH);
 		TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<String>();
 		final HashMap<String, Double> objTweets = new HashMap<String, Double>();
 		final HashMap<String, Double> subTweets = new HashMap<String, Double>();
 		final HashMap<String, Double> uniquePOS = new HashMap<String, Double>();
 		final Integer[] tweetClass = { 0 };// 0:Subjective, 1:Objective
-		double posThreshold = Double.parseDouble(FileHandler
-				.readConfigValue(Constants.POS_THRESHOLD_CONFIG));
+		double posThreshold = Constants.POS_THRESHOLD;
 		try {
 			tt.setModel("english-utf8.par:iso8859-1");
 			tt.setHandler(new TokenHandler<String>() {
@@ -339,8 +337,7 @@ public class POSExtractor {
 	}
 
 	public static void writeCondProbsOfPosTagsToFile(HashMap<String,Double[]> posTagsWithCondProbs) {
-		String posTagsCondProbPath = FileHandler
-				.readConfigValue(Constants.DATA_PATH_CONFIG)
+		String posTagsCondProbPath = Constants.DATA_PATH
 				+ "conditional_probabilities_of_postags.tsv";;
 		File posTagsCondProbFile = new File(posTagsCondProbPath);
 		// Try to delete if it exists without exception
@@ -385,8 +382,7 @@ public class POSExtractor {
 	public static void writePOSProbsToFile(PosTagProb[] rankedPosTags, boolean isPolarity) {
 		
 		String fileName=isPolarity?"distinctive_postags_list_for_polarity.tsv":"distinctive_postags_list_for_subjectivity.tsv";
-		String rankedPOSPath = FileHandler
-				.readConfigValue(Constants.DATA_PATH_CONFIG)
+		String rankedPOSPath = Constants.DATA_PATH
 				+ fileName;
 		File rankedPOSFile = new File(rankedPOSPath);
 		// Try to delete if it exists without exception
@@ -419,8 +415,7 @@ public class POSExtractor {
 				: Constants.TRAIN_LABEL;
 
 		// Generate data file and prepare it with its headers
-		String wekaDataFilePath = FileHandler
-				.readConfigValue(Constants.DATA_PATH_CONFIG)
+		String wekaDataFilePath = Constants.DATA_PATH
 				+ trainOrTestLabel
 				+ Constants.UNDERSCORE + "pos" + Constants.UNDERSCORE + ".arff";
 
@@ -455,7 +450,7 @@ public class POSExtractor {
 			HashMap<String, Double> topRankedPOS, ArrayList<Tweet> tweets,
 			String dataFilePath, boolean isTestData) {
 		System.setProperty("treetagger.home",
-				FileHandler.readConfigValue(Constants.TREE_TAGGER_PATH_CONFIG));
+				Constants.TREE_TAGGER_PATH);
 		TreeTaggerWrapper<String> tt = new TreeTaggerWrapper<String>();
 		final ArrayList<String> buffer = new ArrayList<String>();
 		final int tweetClass[] = { 0 };
@@ -520,7 +515,7 @@ public class POSExtractor {
 
 	public static ArrayList<String> getPosTagsOfTweet(Tweet tweet, TreeTaggerWrapper<String> tt) {
 		System.setProperty("treetagger.home",
-				FileHandler.readConfigValue(Constants.TREE_TAGGER_PATH_CONFIG));
+				Constants.TREE_TAGGER_PATH);
 		ArrayList<String> posTags = new ArrayList<String>();
 		try {
 			tt.setModel("english-utf8.par:iso8859-1");

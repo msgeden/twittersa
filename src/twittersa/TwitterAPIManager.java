@@ -13,20 +13,14 @@ import twitter4j.TwitterFactory;
 import twittersa.Tweet.ClassLabel;
 
 public class TwitterAPIManager {
-	public static void main(String[] args) {
-		args = new String[] { "AJEnglish" };
-
-		getTweets(args[0]);
-	}
 
 	public static ArrayList<String> getTweets(String userAccount) {
 
 		ArrayList<String> tweetList = new ArrayList<String>();
 		ArrayList<Tweet> neutralTweets = new ArrayList<Tweet>();
 		try {
-			String neutralTweetDatasetPath = FileHandler
-					.readConfigValue(Constants.DATA_PATH_CONFIG)
-					+ File.separator + "neutral_tweets.tsv";
+			String neutralTweetDatasetPath = Constants.DATA_PATH
+					+ File.separator + userAccount.toLowerCase() + ".tsv";
 			File neutralTweetDatasetFile = new File(neutralTweetDatasetPath);
 			Twitter unauthenticatedTwitter = new TwitterFactory().getInstance();
 			// First param of Paging() is the page number, second is the number
