@@ -15,7 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cmu.arktweetnlp.Twokenize;
+
 public class PreProcessor {
 
 	private static String[] negations = { "are", "is", "was", "were", "do",

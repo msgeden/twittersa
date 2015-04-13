@@ -48,7 +48,7 @@ How to extract the distinctive ngrams and their class conditional
 probabilities from the training dataset?
 ******************************************************************************
 1. to extract unigrams features from the command line enter: 
-	-xn -n 1
+	-xn -n 1 -t TRANING_FILE_ABSOLUTE_PATH
 	(ex:$jar TwitterSA.jar -cn -n 1)
 	this will generate the following data files that we will be used for the following classification steps
 	"conditional_probabilities_of_1-grams.tsv",
@@ -57,7 +57,7 @@ probabilities from the training dataset?
 	"distinctive_1-grams_list_by_salience.tsv"
 	
 2.	to extract bigrams features from the command line enter: 
-	-xn -n 2
+	-xn -n 2 -t TRANING_FILE_ABSOLUTE_PATH
 	this will generate the following data files that we will be used for the following classification steps
 	"conditional_probabilities_of_2-grams.tsv",
 	"distinctive_2-grams_list_by_information_gain.tsv"
@@ -69,7 +69,7 @@ probabilities from the training dataset?
 How to extract the postags class conditional probabilities from the training dataset?
 ******************************************************************************
 1. to extract postags features from the command line enter: 
-	-xp
+	-xp -t TRANING_FILE_ABSOLUTE_PATH
 	this will generate the following data files that we will be used for the following classification steps
 	"conditional_probabilities_of_postags.tsv",
 
@@ -78,12 +78,12 @@ How to extract the postags class conditional probabilities from the training dat
 How to classify with custom Multinomial Naive Bayes classifier by using ngrams features?
 ******************************************************************************
 1. to classify by using unigrams from the command line enter: 
-	-cn -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH 
+	-cn -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -v VALIDATION_FILE_ABSOLUTE_PATH
 	(ex:$jar TwitterSA.jar -cn -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv)
 	this will generate output results in the reports folder
 	
 2. to classify by using bigrams from the command line enter: 
-	-cn -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH 
+	-cn -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -v VALIDATION_FILE_ABSOLUTE_PATH
 	(ex:$jar TwitterSA.jar -cn -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv)
 	this will generate output results in the reports folder
 		

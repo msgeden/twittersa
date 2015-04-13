@@ -83,27 +83,26 @@ public class SentimentAnalyser extends BasicParser {
 				.addOption("wv", "weka-validation-file", true,
 						"specify the test/validation *.arff file [f] for weka classifier");
 
-		//String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
+		String commonDataPath = "/Users/msgeden/OneDrive/SSE/COMPGI15/TwitterSA/Data/";
 		// args = new String[] { "-s", commonDataPath +
 		// "stanford_polarity_0_1.tsv", "-r", "10" };
 
 		// args = new String[] { "-gt", "msgeden"};
 
-		// args = new String[] { "-xp", "-t", commonDataPath +
+		//args = new String[] { "-xp", "-t", commonDataPath +
 		// "stanford_polarity_0_1_reduced.tsv"};
 
-		// args = new String[] { "-xn", "-t", commonDataPath +
-		// "stanford_polarity_0_1_reduced.tsv", "-n", "1"};
-		// args = new String[] { "-xn", "-t", commonDataPath +
-		// "stanford_polarity_0_1_reduced.tsv", "-n", "2"};
+		//args = new String[] { "-xn", "-n", "1", "-t", commonDataPath +
+		// "stanford_polarity_0_1_reduced.tsv", };
+		// args = new String[] { "-xn", "-n", "2" "-t", commonDataPath +
+		// "stanford_polarity_0_1_reduced.tsv", };
 
 		// args = new String[] { "-cp", "-v", commonDataPath +
 		// "stanford_validation_polarity.tsv", "-p",commonDataPath +
 		// "conditional_probabilities_of_postags.tsv"};
 
-		// args = new String[] { "-cn", "-v", commonDataPath +
-		// "stanford_validation_polarity.tsv", "-n1",commonDataPath +
-		// "conditional_probabilities_of_1-grams.tsv"};
+		//args = new String[] { "-cn", "-n1",commonDataPath +
+		//		"conditional_probabilities_of_1-grams.tsv", "-v", commonDataPath + "stanford_validation_polarity.tsv", };
 		// args = new String[] { "-cn", "-v", commonDataPath +
 		// "stanford_validation_polarity.tsv", "-n2",commonDataPath +
 		// "conditional_probabilities_of_2-grams.tsv"};
