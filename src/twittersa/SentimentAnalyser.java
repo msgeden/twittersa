@@ -24,6 +24,12 @@ public class SentimentAnalyser extends BasicParser {
 				.addOption("gt", "-get-tweets", true, "collect the tweets of the given user [u]")
 				.addOption("r", "-ratio", true, "split ratio of data file [r]")
 				.addOption("n", "-ngram-size", true, "set ngram length [n]")
+				.addOption("df", "data-folder", true,
+						"specify the data folder [f]")
+				.addOption("rf", "report-folder", true,
+						"specify the report folder [f]")
+				.addOption("ttf", "tree-tagger-folder", true,
+						"specify the tree-tagger folder [f]")
 				.addOption("t", "training-file", true,
 						"specify the training data file [f]")
 				.addOption("dd", "define-data-path", true,
@@ -152,6 +158,16 @@ public class SentimentAnalyser extends BasicParser {
 			if (commandLine.hasOption("n"))
 				FileHandler.writeConfigValue(Constants.NGRAM_SIZE_CONFIG,
 						commandLine.getOptionValue("n"));
+			
+			if (commandLine.hasOption("df"))
+				FileHandler.writeConfigValue(Constants.DATA_PATH_CONFIG,
+						commandLine.getOptionValue("df"));
+			if (commandLine.hasOption("rf"))
+				FileHandler.writeConfigValue(Constants.REPORTS_PATH_CONFIG,
+						commandLine.getOptionValue("rf"));
+			if (commandLine.hasOption("ttf"))
+				FileHandler.writeConfigValue(Constants.TREE_TAGGER_PATH_CONFIG,
+						commandLine.getOptionValue("ttf"));
 			if (commandLine.hasOption("t"))
 				FileHandler.writeConfigValue(
 						Constants.TRAINING_CORPUS_PATH_CONFIG,

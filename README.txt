@@ -48,8 +48,8 @@ How to extract the distinctive ngrams and their class conditional
 probabilities from the training dataset?
 ******************************************************************************
 1. to extract unigrams features from the command line enter: 
-	-xn -n 1 -t TRANING_FILE_ABSOLUTE_PATH
-	(ex:$jar TwitterSA.jar -cn -n 1)
+	-xn -n 1 
+	(ex:$java -jar TwitterSA.jar -cn -n 1)
 	this will generate the following data files that we will be used for the following classification steps
 	"conditional_probabilities_of_1-grams.tsv",
 	"distinctive_1-grams_list_by_information_gain.tsv"
@@ -57,7 +57,7 @@ probabilities from the training dataset?
 	"distinctive_1-grams_list_by_salience.tsv"
 	
 2.	to extract bigrams features from the command line enter: 
-	-xn -n 2 -t TRANING_FILE_ABSOLUTE_PATH
+	-xn -n 2 
 	this will generate the following data files that we will be used for the following classification steps
 	"conditional_probabilities_of_2-grams.tsv",
 	"distinctive_2-grams_list_by_information_gain.tsv"
@@ -78,18 +78,18 @@ How to extract the postags class conditional probabilities from the training dat
 How to classify with custom Multinomial Naive Bayes classifier by using ngrams features?
 ******************************************************************************
 1. to classify by using unigrams from the command line enter: 
-	-cn -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -v VALIDATION_FILE_ABSOLUTE_PATH
-	(ex:$jar TwitterSA.jar -cn -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv)
+	-cn -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH 
+	(ex:$java -jar TwitterSA.jar -cn -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv)
 	this will generate output results in the reports folder
 	
 2. to classify by using bigrams from the command line enter: 
-	-cn -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -v VALIDATION_FILE_ABSOLUTE_PATH
-	(ex:$jar TwitterSA.jar -cn -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv)
+	-cn -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH 
+	(ex:$java -jar TwitterSA.jar -cn -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv)
 	this will generate output results in the reports folder
 		
 3. to classify by combining unigram and bigrams together from the command line enter: 
 	-cn -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH 
-	(ex:$jar TwitterSA.jar -cn -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv)
+	(ex:$java -jar TwitterSA.jar -cn -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv)
 	this will generate output results in the reports folder
 
 		
@@ -98,7 +98,7 @@ How to classify with custom Multinomial Naive Bayes classifier by just using pos
 ******************************************************************************
 1. to classify by using just postag from the command line enter: 
 	-cp -p POSTAG_CONDITINIONAL_PROBABILITIES_FILE_PATH 
-	(ex:$jar TwitterSA.jar -cp -p /Users/***/Data/conditional_probabilities_of_postags.tsv)
+	(ex:$java -jar TwitterSA.jar -cp -p /Users/***/Data/conditional_probabilities_of_postags.tsv)
 	this will generate output results in the reports folder
 	
 	
@@ -107,12 +107,12 @@ How to classify with custom Multinomial Naive Bayes classifier by combining post
 ******************************************************************************
 1. to classify by using unigrams and postags features together from the command line enter: 
 	-cnp -p POSTAG_CONDITINIONAL_PROBABILITIES_FILE_PATH -n1 UNIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -l LAMBDA_VALUE
-	(ex:$jar TwitterSA.jar -cnp -p /Users/***/Data/conditional_probabilities_of_postags.tsv  -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv -l 0.45)
+	(ex:$java -jar TwitterSA.jar -cnp -p /Users/***/Data/conditional_probabilities_of_postags.tsv  -n1 /Users/***/Data/conditional_probabilities_of_1-grams.tsv -l 0.45)
 	this will generate output results in the reports folder
 
 2. to classify by using bigrams and postags features together from the command line enter: 
 	-cnp -p POSTAG_CONDITINIONAL_PROBABILITIES_FILE_PATH -n2 BIGRAM_CONDITINIONAL_PROBABILITIES_FILE_PATH -l LAMBDA_VALUE
-	(ex:$jar TwitterSA.jar -cnp -p /Users/***/Data/conditional_probabilities_of_postags.tsv  -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv -l 0.45)
+	(ex:$java -jar TwitterSA.jar -cnp -p /Users/***/Data/conditional_probabilities_of_postags.tsv  -n2 /Users/***/Data/conditional_probabilities_of_2-grams.tsv -l 0.45)
 	this will generate output results in the reports folder
 
 
@@ -121,7 +121,7 @@ How to generate Weka data files for Weka Classifiers?
 ******************************************************************************
 1. to generate Weka data *.arff files of the most distinctive unigrams (default #of input size=1000) from the command line enter: 
 	-gw -n 1 -d DISTINCTIVE_UNIGRAMS_LIST_FILE_PATH
-	(ex:$jar TwitterSA.jar -gw -n 1 -d /Users/***/Data/distinctive_1-grams_list_by_information_gain.tsv)
+	(ex:$java -jar TwitterSA.jar -gw -n 1 -d /Users/***/Data/distinctive_1-grams_list_by_information_gain.tsv)
 	this will generate the following training and validation data files that we will be used for the following Weka classifications
 	"train_ngram_1000_1.arff"
 	"test_ngram_1000_1.arff"
@@ -136,7 +136,7 @@ How to classify wih Weka classifiers?
     j48:decision trees, 
     svm:support vector machines) from the command line enter: 
 	-cw ALGORITHM -wt TRANING_ARFF_FILE_PATH -wv VALIDATION_ARFF_FILE_PATH
-	(ex:$jar TwitterSA.jar -cw mnb -wt /Users/***/Data/train_ngram_1000_1.arff -wv /Users/***/Data/test_ngram_1000_1.arff)
+	(ex:$java -jar TwitterSA.jar -cw mnb -wt /Users/***/Data/train_ngram_1000_1.arff -wv /Users/***/Data/test_ngram_1000_1.arff)
 	this will generate output results in the reports folder
 
 ***************************************
