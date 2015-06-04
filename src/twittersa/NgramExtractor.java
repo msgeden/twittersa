@@ -627,7 +627,7 @@ public class NgramExtractor {
 				}
 				entropy = -1 * entropy;
 				// Add calculated entropy for the given ngram
-				if (entropy > 0.0 && entropy < threshold)
+				if (entropy > threshold)
 					ngramsWithEntropy.put(entry.getKey(), entropy);
 			}
 
@@ -800,7 +800,7 @@ public class NgramExtractor {
 				}
 				salience /= N;
 				// Add calculated salience for the given ngram
-				if (salience > threshold && salience < 1.0)
+				if (salience < threshold)
 					ngramsWithSalience.put(entry.getKey(), salience);
 			}
 
