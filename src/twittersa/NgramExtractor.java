@@ -847,8 +847,8 @@ public class NgramExtractor {
 				: Constants.TRAIN_LABEL;
 
 		// Generate data file and prepare it with its headers
-		String wekaDataFilePath = ( FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
-				+ trainOrTestLabel
+		String wekaDataFilePath = FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
+				+ (trainOrTestLabel
 				+ Constants.UNDERSCORE
 				+ "ngram"
 				+ Constants.UNDERSCORE
