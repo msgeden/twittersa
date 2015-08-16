@@ -14,6 +14,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import twittersa.Tweet.ClassLabel;
+
 public class NgramExtractor {
 
 	public static HashMap<String, Integer[]> generateNgramsOfTweets(
@@ -241,6 +243,125 @@ public class NgramExtractor {
 		}
 		return distinctiveNgramsWithScores;
 	}
+	public static String extractNADOfNgrams(HashMap<String, Integer[]> ngrams) {
+
+		int ngramSize = Integer.parseInt(FileHandler.readConfigValue(Constants.NGRAM_SIZE_CONFIG, "1"));
+		int topRankedSize = Integer.parseInt(FileHandler.readConfigValue(Constants.TOP_RANKED_SIZE_CONFIG,"5000"));
+
+		String rankedNgramsPath =  FileHandler.readConfigValue(Constants.DATA_PATH_CONFIG)
+				+ "distinctive_"+ngramSize+"-grams_list_by_angular_distance.tsv";
+		File rankedNgramsFile = new File(rankedNgramsPath);
+
+		// Try to delete if it exists without exception
+		FileUtils.deleteQuietly(rankedNgramsFile);
+
+		try {
+
+			// This will keep the information gain extracted from each ngram
+			HashMap<String, Double> ngramsWithIG = new HashMap<String, Double>();
+
+			// This structure will keep the top-ranked ngrams with their
+			// information gain
+			NGramIGPair[] topRankedNgrams = new NGramIGPair[topRankedSize];
+			// This structure is defined to validate the distribution of
+			// information gain scores
+			NGramIGPair[] randomNgrams = new NGramIGPair[topRankedSize];
+
+			// Retrieve the number of tweets per class from the specific entry
+			Integer[] tweetCountPerClass = ngrams
+					.get(Constants.COUNT_OF_TWEETS_PER_CLASS);
+			double[] totalNumberOfTweetsInClass = new double[tweetCountPerClass.length];
+			int numberOfClass = tweetCountPerClass.length;
+			double totalNumberOfTweets = 0.0;
+			for (int i = 0; i < tweetCountPerClass.length; i++) {
+				totalNumberOfTweetsInClass[i] = (double) tweetCountPerClass[i];
+				totalNumberOfTweets += totalNumberOfTweetsInClass[i];
+			}
+			// Remove this specific entry not to interpret as ngram
+						ngrams.remove(Constants.COUNT_OF_TWEETS_PER_CLASS);
+						ngrams.remove(Constants.COUNT_OF_NGRAMS_PER_CLASS);
+			// Iterate ngram hashmap to calculate information gain for each
+			// ngram
+			for (Map.Entry<String, Integer[]> entry : ngrams.entrySet()) {
+
+				// Calculate the number of tweets for each classes that owns the
+				// given ngram
+				Integer[] values = entry.getValue();
+				// Terms that are needed for information gain calculation
+				
+				// Terms that are needed for information gain calculation
+				double probabilityOfNgramInClassA = (double) values[0]
+						/ totalNumberOfTweetsInClass[ClassLabel.Negative.ordinal()];
+				double probabilityOfNgramInClassB = (double) values[1]
+						/ totalNumberOfTweetsInClass[ClassLabel.Positive.ordinal()];
+				double probabilityOfHypotenuse = Math.sqrt(Math.pow(
+						probabilityOfNgramInClassA, 2.0)
+						+ Math.pow(probabilityOfNgramInClassB, 2.0));
+				double distance = Math.abs(probabilityOfNgramInClassA-probabilityOfNgramInClassB);
+				double sinOfAngle = Math.sqrt(Math.pow(probabilityOfNgramInClassA-probabilityOfNgramInClassB, 2.0)+Math.pow(probabilityOfNgramInClassB-probabilityOfNgramInClassA, 2.0))/(2*probabilityOfHypotenuse);
+				double angleUnit = Math.asin(sinOfAngle)/(Math.PI/4); //45=1 0=0
+				//double normalizer = Math.pow(distance, 1/2.0);
+				double normalizer = Math.sqrt(distance);
+
+				// log(p(ngram))xdistance
+				// Calculation formula of normalized distances
+				double distanceRatioScore = normalizer*angleUnit;
+
+				// Add calculated information gain for the given ngram
+				ngramsWithIG.put(entry.getKey(), distanceRatioScore);
+			}
+
+			// Initialize top-ranked array values for ordering and comparison
+			for (int i = 0; i < topRankedNgrams.length; i++) {
+				topRankedNgrams[i] = new NGramIGPair(Integer.toString(i), 0.0);
+				randomNgrams[i] = new NGramIGPair(Integer.toString(i), 0.0);
+			}
+
+			
+
+			for (Map.Entry<String, Double> entry : ngramsWithIG.entrySet()) {
+
+				// Find the first minimum value and its index in top-ranked
+				// array to replace-> index0:index of the item, index 1-> value
+				// of item
+				double[] minIG = minIndexAndValue(topRankedNgrams);
+				if (entry.getValue() > minIG[1]) {
+					topRankedNgrams[(int) minIG[0]] = new NGramIGPair(
+							entry.getKey(), entry.getValue());
+				}
+
+				// If there is positive number add this value to the array with
+				// random index to validate distribution
+				if (entry.getValue() > 0.0) {
+					randomNgrams[randWithinRange(0,
+							topRankedSize - 1)] = new NGramIGPair(
+							entry.getKey(), entry.getValue());
+				}
+			}
+			// Sort top ranked array and print it to file and console
+			Arrays.sort(topRankedNgrams);
+			FileUtils.write(rankedNgramsFile, "RANK" + Constants.SEPERATOR_CHAR
+					+ "NGRAM" + Constants.SEPERATOR_CHAR + "INFORMATION GAIN",
+					true);
+			System.out.print("RANK" + Constants.SEPERATOR_CHAR + "NGRAM"
+					+ Constants.SEPERATOR_CHAR + "INFORMATION GAIN");
+			for (int i = 0; i < topRankedNgrams.length; i++) {
+				System.out.print("\n" + (i + 1) + Constants.SEPERATOR_CHAR
+						+ topRankedNgrams[i].getKey()
+						+ Constants.SEPERATOR_CHAR
+						+ topRankedNgrams[i].getValue());
+				FileUtils.write(
+						rankedNgramsFile,
+						"\n" + (i + 1) + Constants.SEPERATOR_CHAR
+								+ topRankedNgrams[i].getKey()
+								+ Constants.SEPERATOR_CHAR
+								+ topRankedNgrams[i].getValue(), true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rankedNgramsFile.getAbsolutePath();
+	}
 	
 	public static String extractIGOfNgrams(HashMap<String, Integer[]> ngrams) {
 
@@ -305,11 +426,12 @@ public class NgramExtractor {
 				double[] informationGainForNgram = new double[tweetCountPerClass.length * 2];
 				for (int i = 0; i < tweetCountPerClass.length; i++) {
 					informationGainForNgram[(i * 2)] = (numberOfTweetsHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
-							* Math.log((numberOfTweetsHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
-									/ (((totalNumberOfTweetsHoldNgram) / totalNumberOfTweets) * (1.0 / (double) numberOfClass)));
+							* (Math.log((numberOfTweetsHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
+									/ (((totalNumberOfTweetsHoldNgram) / totalNumberOfTweets) * (1.0 / (double) numberOfClass)))/Math.log(2.0));
+					
 					informationGainForNgram[(i * 2) + 1] = (numberOfTweetsDoNotHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
-							* Math.log((numberOfTweetsDoNotHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
-									/ (((totalNumberOfTweetsDoNotHoldNgram) / totalNumberOfTweets) * (1.0 / (double) numberOfClass)));
+							* (Math.log((numberOfTweetsDoNotHoldNgramInClass[i] / totalNumberOfTweetsInClass[i])
+									/ (((totalNumberOfTweetsDoNotHoldNgram) / totalNumberOfTweets) * (1.0 / (double) numberOfClass)))/Math.log(2.0));
 				}
 
 				// Skip infinite and NaN terms

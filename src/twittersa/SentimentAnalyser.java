@@ -97,6 +97,7 @@ public class SentimentAnalyser extends BasicParser {
 
 		//args = new String[] { "-xp", "-t", commonDataPath +
 		// "stanford_polarity_0_1_reduced.tsv"};
+		//args = new String[] { "-xn", "-n","1"};
 
 		//args = new String[] { "-xn", "-n", "1", "-t", commonDataPath +
 		// "stanford_polarity_0_1_reduced.tsv", };
@@ -190,8 +191,9 @@ public class SentimentAnalyser extends BasicParser {
 				HashMap<String, Integer[]> ngrams = NgramExtractor
 						.generateNgramsOfTweets(trainTweets, false);
 				NgramExtractor.extractIGOfNgrams(ngrams);
-				NgramExtractor.extractEntropyOfNgrams(ngrams);
-				NgramExtractor.extractSalienceOfNgrams(ngrams);
+				NgramExtractor.extractNADOfNgrams(ngrams);
+				//NgramExtractor.extractEntropyOfNgrams(ngrams);
+				//NgramExtractor.extractSalienceOfNgrams(ngrams);
 				NgramExtractor.calculateCondProbsOfNgrams(ngrams);
 			}
 			if (commandLine.hasOption("gw")) {
