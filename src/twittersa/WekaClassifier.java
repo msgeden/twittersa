@@ -16,6 +16,7 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.lazy.IBk;
+import weka.classifiers.functions.NeuralNetwork;
 import weka.classifiers.functions.SMO;
 import weka.filters.unsupervised.attribute.Remove;
 
@@ -78,6 +79,10 @@ public class WekaClassifier {
 			} else if (algorithm.equals("svm")) {
 				SMO svm = new SMO();
 				fc.setClassifier(svm);
+			}
+			else if (algorithm.equals("nn")) {
+				NeuralNetwork nn = new NeuralNetwork();
+				fc.setClassifier(nn);
 			}
 			// train and make predictions
 			fc.buildClassifier(trainingData);
